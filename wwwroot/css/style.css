@@ -2889,3 +2889,6 @@ footer {
 .featured-see-all {
   display: flex; justify-content: center; margin-top: 40px;
 }
+
+/* ---- Lab 10: active nav do JS gan (nav-active.js) ---- */
+.nav-link-active-js { text-decoration: underline; text-underline-offset: 6px; }

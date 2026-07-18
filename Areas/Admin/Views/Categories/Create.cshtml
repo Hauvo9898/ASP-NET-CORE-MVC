@@ -1,0 +1,29 @@
+@model Category
+@{
+    ViewData["Title"] = "Thêm danh mục";
+}
+
+<div class="admin-tab-header">
+    <h2 style="font-family:var(--font-serif);font-size:1.3rem">Thêm danh mục</h2>
+    <a class="admin-add-btn" style="background:transparent;color:#1A1A1A;border:1px solid #e5e7eb" asp-action="Index" asp-route-parentId="@Model.ParentId">Quay lại danh sách</a>
+</div>
+
+<div class="admin-section-card">
+    <form asp-action="Create" method="post">
+        <div asp-validation-summary="ModelOnly" class="auth-error" style="display:block;margin-bottom:16px"></div>
+        <input type="hidden" asp-for="ParentId" />
+        <div class="checkout-input-group" style="margin-bottom:16px">
+            <label class="checkout-input-label">Tên danh mục</label>
+            <input asp-for="Name" class="checkout-input" />
+        </div>
+        <div class="checkout-input-group" style="margin-bottom:16px">
+            <label class="checkout-input-label">Từ khóa SEO (Meta Keyword)</label>
+            <input asp-for="MetaKeyword" class="checkout-input" />
+        </div>
+        <div class="checkout-input-group" style="margin-bottom:24px">
+            <label class="checkout-input-label">Mô tả SEO (Meta Description)</label>
+            <textarea asp-for="MetaDescription" class="contact-textarea" rows="3"></textarea>
+        </div>
+        <button class="admin-add-btn" type="submit">Lưu danh mục</button>
+    </form>
+</div>

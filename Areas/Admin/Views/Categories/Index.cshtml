@@ -1,0 +1,53 @@
+@model List<Category>
+@{
+    ViewData["Title"] = "Danh mục";
+    var parent = ViewBag.Parent as Category;
+    int? parentId = ViewBag.ParentId;
+}
+
+<div class="admin-tab-header">
+    <h2 style="font-family:var(--font-serif);font-size:1.3rem">
+        Danh mục
+        @if (parent != null)
+        {
+            <span style="font-size:14px;color:#9ca3af;font-weight:400"> / @parent.Name</span>
+        }
+    </h2>
+    <div style="display:flex;gap:12px">
+        @if (parent != null)
+        {
+            <a class="admin-add-btn" style="background:transparent;color:#1A1A1A;border:1px solid #e5e7eb" asp-action="Index" asp-route-parentId="@parent.ParentId">Về danh mục gốc</a>
+        }
+        <a class="admin-add-btn" asp-action="Create" asp-route-parentId="@parentId">+ Thêm danh mục</a>
+    </div>
+</div>
+
+<div class="admin-table-wrap">
+    <div style="overflow-x:auto">
+        <table class="admin-table">
+            <thead><tr><th>Tên danh mục</th><th style="text-align:right">Biên tập</th></tr></thead>
+            <tbody>
+                @foreach (var c in Model)
+                {
+                    <tr>
+                        <td><a asp-action="Index" asp-route-parentId="@c.Id" style="font-weight:600;color:#1A1A1A">@c.Name</a></td>
+                        <td style="text-align:right">
+                            <div class="admin-row-actions">
+                                <a class="admin-action-btn edit" asp-action="Edit" asp-route-id="@c.Id">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                </a>
+                                <form asp-action="Delete" asp-route-id="@c.Id" method="post" onsubmit="return confirm('Xóa danh mục này?')">
+                                    <button class="admin-action-btn del" type="submit"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        @if (Model.Count == 0)
+        {
+            <div style="padding:80px;text-align:center;color:#9ca3af;font-style:italic">Chưa có danh mục nào ở cấp này.</div>
+        }
+    </div>
+</div>

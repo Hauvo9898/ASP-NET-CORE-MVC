@@ -225,6 +225,7 @@
 <form id="af-token-form" style="display:none">@Html.AntiForgeryToken()</form>
 
 <script src="~/js/site.js"></script>
+<script src="~/js/nav-active.js"></script>
 @if (TempData["ToastMessage"] != null)
 {
     <script>document.addEventListener('DOMContentLoaded', function(){ showToast(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["ToastMessage"]))); });</script>
