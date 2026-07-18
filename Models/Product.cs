@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AHUWeb.Models
 {
-    public class Product
+    public class Product : IAuditable
     {
         [Key]
         public int Id { get; set; }
@@ -47,5 +47,11 @@ namespace AHUWeb.Models
         public string? ColorsJson { get; set; }
 
         public ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
+
+        // Lab 11: gan tu Session/Claims nguoi dang nhap khi Them/Sua (xem ProductsController)
+        public string? CreatedBy { get; set; }
+        public DateTime? CreatedOn { get; set; }
+        public string? ModifiedBy { get; set; }
+        public DateTime? ModifiedOn { get; set; }
     }
 }

@@ -75,6 +75,8 @@ namespace AHUWeb.Areas.Admin.Controllers
             
             var product = new Product();
             await MapFormToProduct(model, product);
+            product.CreatedBy = User.Identity?.Name;
+            product.CreatedOn = DateTime.Now;
 
             _db.Products.Add(product);
             await _db.SaveChangesAsync();
@@ -132,6 +134,8 @@ namespace AHUWeb.Areas.Admin.Controllers
             if (product == null) return NotFound();
 
             await MapFormToProduct(model, product);
+            product.ModifiedBy = User.Identity?.Name;
+            product.ModifiedOn = DateTime.Now;
             await _db.SaveChangesAsync();
 
             TempData["ToastMessage"] = "Đã cập nhật sản phẩm";
