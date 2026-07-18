@@ -77,7 +77,7 @@
                     @foreach (var item in Model.Items)
                     {
                         <div class="cart-summary-line">
-                            <span style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">@item.Name x@item.Quantity</span>
+                            <span style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">@item.Name x@(item.Quantity)</span>
                             <span>@FormatHelper.FormatPrice(item.Price * item.Quantity)</span>
                         </div>
                     }

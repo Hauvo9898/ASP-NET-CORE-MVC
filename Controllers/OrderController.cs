@@ -59,6 +59,21 @@ namespace AHUWeb.Controllers
             var productIds = lines.Select(l => l.ProductId).Distinct().ToList();
             var products = await _db.Products.Where(p => productIds.Contains(p.Id)).ToDictionaryAsync(p => p.Id);
 
+            // Kiểm tra tồn kho trước khi tạo đơn — cùng 1 sản phẩm có thể nằm ở nhiều
+            // dòng giỏ hàng (khác size/màu) nên phải cộng dồn số lượng theo ProductId.
+            foreach (var group in lines.GroupBy(l => l.ProductId))
+            {
+                if (!products.TryGetValue(group.Key, out var p)) continue;
+                var wanted = group.Sum(l => l.Quantity);
+                if (p.Stock < wanted)
+                {
+                    ModelState.AddModelError(string.Empty,
+                        $"Sản phẩm \"{p.Name}\" chỉ còn {p.Stock} trong kho (bạn đang đặt {wanted}). Vui lòng điều chỉnh giỏ hàng.");
+                    model.Items = (await BuildCheckoutViewModel()).Items;
+                    return View(model);
+                }
+            }
+
             var order = new Order
             {
                 UserId = CurrentUserId,
@@ -80,6 +95,9 @@ namespace AHUWeb.Controllers
                     Price = p.Price
                 });
                 total += p.Price * line.Quantity;
+                // Trừ tồn kho ngay khi đặt hàng thành công; đã kiểm tra đủ hàng ở trên.
+                // Cùng SaveChanges với Order nên đơn và tồn kho luôn nhất quán.
+                p.Stock -= line.Quantity;
             }
             order.Total = total;
 
