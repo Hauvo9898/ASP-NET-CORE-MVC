@@ -14,3 +14,8 @@ obj/
 ## OS
 .DS_Store
 Thumbs.db
+
+## Publish / Node (bo sung theo yeu cau khi day len GitHub)
+publish/
+node_modules/
+appsettings.Development.json
