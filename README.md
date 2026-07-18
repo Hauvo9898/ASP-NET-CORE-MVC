@@ -93,3 +93,16 @@ AHUWeb/
 ├── wwwroot/js/site.js      JS thuần cho UI (menu, search, toast, quick view) — không còn localStorage
 └── wwwroot/images/         h1–h4.jpg từ bản gốc
 ```
+
+## 10. Đối chiếu 17 Lab (thi giữa kỳ lần 2)
+
+Dự án giữ nguyên stack đang chạy ổn định (int Id, BCrypt, Cookie Authentication) thay vì đổi
+sang Guid/MD5/Session như giáo trình gốc minh họa — mỗi lab dưới đây được làm **tương đương
+tinh thần**, không phá vỡ chức năng hiện có. Xem chi tiết từng lab qua tag Git tương ứng
+(`git tag`, hoặc `git show lab-XX`).
+
+| Lab | Nội dung | Bằng chứng |
+|---|---|---|
+| 01 | Model Code-First, chuẩn hóa `IAuditable`/`IMeta`, danh mục cha-con, nhóm quyền | `Models/IAuditable.cs`, `Models/IMeta.cs`, `Models/Category.cs`, `Models/Group.cs`, `Models/Permission.cs`, `Models/GroupPermission.cs` — tag `lab-01` |
+| 02 | Kết nối SQL Server (EF Core + Migration) và Area Admin | `Data/ApplicationDbContext.cs`, `appsettings.json` (`ConnectionStrings:DefaultConnection`), `Migrations/`, `Areas/Admin/`, routing area tại `Program.cs` (`MapControllerRoute("areas", "{area:exists}/...")`) — tương đương `MapAreaControllerRoute` của bản gốc |
+| 03 | Layout riêng cho Quản trị viên và Người dùng | `Views/Shared/_Layout.cshtml` (site) và `Areas/Admin/Views/Shared/_AdminLayout.cshtml` (admin) — cùng dùng `@RenderBody()`/`@RenderSectionAsync()`, tương đương `_LayoutSite`/`_LayoutAdmin` của bản gốc. CSS/JS tự viết lại (không dùng template AdminLTE/T-shop có sẵn vì không có file gốc) |
