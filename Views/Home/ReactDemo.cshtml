@@ -1,0 +1,49 @@
+@{
+    ViewData["Title"] = "React Demo";
+}
+
+<div class="max-w-7xl" style="padding:40px 16px">
+    <h1 style="font-family:var(--font-serif);font-size:1.8rem;margin-bottom:8px">Lab 17: ReactJS + Web API</h1>
+    <p style="color:#9ca3af;margin-bottom:24px">Component React gọi <code>GET /api/products/latest</code> để hiển thị danh sách bên dưới.</p>
+    <div id="react-root"></div>
+</div>
+
+@section Scripts {
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@@babel/standalone/babel.min.js"></script>
+    <script type="text/babel">
+        function LatestProducts() {
+            const [products, setProducts] = React.useState([]);
+            const [loading, setLoading] = React.useState(true);
+
+            React.useEffect(function () {
+                fetch('/api/products/latest')
+                    .then(function (r) { return r.json(); })
+                    .then(function (data) {
+                        setProducts(data);
+                        setLoading(false);
+                    });
+            }, []);
+
+            if (loading) return <p>Đang tải...</p>;
+            if (products.length === 0) return <p>Chưa có sản phẩm nào.</p>;
+
+            return (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px' }}>
+                    {products.map(function (p) {
+                        return (
+                            <div key={p.id} style={{ border: '1px solid #e5e7eb', borderRadius: '8px', padding: '12px' }}>
+                                <div style={{ fontWeight: 600 }}>{p.name}</div>
+                                <div style={{ color: '#D4AF37' }}>{Number(p.price).toLocaleString('vi-VN')} VND</div>
+                            </div>
+                        );
+                    })}
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('react-root'));
+        root.render(<LatestProducts />);
+    </script>
+}

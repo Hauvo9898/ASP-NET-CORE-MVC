@@ -39,5 +39,11 @@ namespace AHUWeb.Controllers
         {
             return View();
         }
+
+        // GET /Home/ReactDemo - Lab 17: trang minh hoa ReactJS goi Web API (api/products/latest)
+        public IActionResult ReactDemo()
+        {
+            return View();
+        }
     }
 }
