@@ -20,6 +20,11 @@ namespace AHUWeb.Models.ViewModels
         public int TotalUsers { get; set; }
         // Day label -> revenue that day, last 14 days, used for the simple bar chart
         public List<(string Label, decimal Revenue)> RevenueByDay { get; set; } = new();
+
+        // Lab 14: doanh thu theo tung thang cua 1 nam, ve bang Chart.js
+        public int SelectedYear { get; set; }
+        public List<int> AvailableYears { get; set; } = new();
+        public List<(string MonthLabel, decimal Revenue)> RevenueByMonth { get; set; } = new();
     }
 
     public class UserFormViewModel

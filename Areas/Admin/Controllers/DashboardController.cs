@@ -36,8 +36,8 @@ namespace AHUWeb.Areas.Admin.Controllers
             return View(vm);
         }
 
-        // GET /Admin/Dashboard/Reports — thay cho renderAdminReports() (tab "reports")
-        public async Task<IActionResult> Reports()
+        // GET /Admin/Dashboard/Reports?year=2026 — thay cho renderAdminReports() (tab "reports")
+        public async Task<IActionResult> Reports(int? year)
         {
             var orders = await _db.Orders
                 .Include(o => o.OrderDetails)
@@ -50,6 +50,16 @@ namespace AHUWeb.Areas.Admin.Controllers
                 .GroupBy(o => o.Date.Date)
                 .ToDictionary(g => g.Key, g => g.Sum(o => o.Total));
 
+            // Lab 14: doanh thu theo thang cho 1 nam duoc chon (giu nguyen phan 14 ngay ben tren)
+            var availableYears = orders.Select(o => o.Date.Year).Distinct().OrderByDescending(y => y).ToList();
+            if (!availableYears.Contains(DateTime.Today.Year)) availableYears.Insert(0, DateTime.Today.Year);
+            var selectedYear = year.HasValue && availableYears.Contains(year.Value) ? year.Value : DateTime.Today.Year;
+
+            var byMonth = orders
+                .Where(o => o.Date.Year == selectedYear)
+                .GroupBy(o => o.Date.Month)
+                .ToDictionary(g => g.Key, g => g.Sum(o => o.Total));
+
             var vm = new AdminReportsViewModel
             {
                 TotalRevenue = orders.Sum(o => o.Total),
@@ -58,6 +68,11 @@ namespace AHUWeb.Areas.Admin.Controllers
                 RevenueByDay = Enumerable.Range(0, 14)
                     .Select(i => since.AddDays(i))
                     .Select(d => (d.ToString("dd/MM"), byDay.TryGetValue(d, out var r) ? r : 0m))
+                    .ToList(),
+                SelectedYear = selectedYear,
+                AvailableYears = availableYears,
+                RevenueByMonth = Enumerable.Range(1, 12)
+                    .Select(m => ($"Th{m}", byMonth.TryGetValue(m, out var r) ? r : 0m))
                     .ToList()
             };
 

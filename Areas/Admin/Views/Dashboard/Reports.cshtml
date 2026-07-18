@@ -40,3 +40,44 @@
         }
     </div>
 </div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+    <script>
+        var monthlyChart;
+        function drawMonthlyChart(labels, data) {
+            var ctx = document.getElementById('monthly-revenue-chart').getContext('2d');
+            if (monthlyChart) monthlyChart.destroy();
+            monthlyChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{ label: 'Doanh thu', data: data, backgroundColor: '#D4AF37' }]
+                },
+                options: {
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        }
+        drawMonthlyChart(
+            @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.RevenueByMonth.Select(x => x.MonthLabel))),
+            @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.RevenueByMonth.Select(x => x.Revenue)))
+        );
+    </script>
+}
+
+<div class="admin-section-card" style="margin-top:32px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <h3 style="font-family:var(--font-serif);font-size:1.1rem">Doanh thu theo tháng (@Model.SelectedYear)</h3>
+        <form method="get" asp-action="Reports">
+            <select name="year" class="aom-status-select" onchange="this.form.submit()">
+                @foreach (var y in Model.AvailableYears)
+                {
+                    <option value="@y" selected="@(y == Model.SelectedYear)">Năm @y</option>
+                }
+            </select>
+        </form>
+    </div>
+    <canvas id="monthly-revenue-chart" height="90"></canvas>
+</div>
