@@ -1,0 +1,173 @@
+@{
+    ViewData["Title"] = "Nhóm quyền";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastr@2.1.4/build/toastr.min.css" />
+    <style>
+        .gm-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 1000; align-items: center; justify-content: center; }
+        .gm-modal-overlay.active { display: flex; }
+        .gm-modal-box { background: #fff; border-radius: 8px; padding: 24px; width: 100%; max-width: 420px; }
+        .gm-modal-box h3 { font-family: var(--font-serif); font-size: 1.1rem; margin-bottom: 16px; }
+        #groups-table_wrapper { font-size: 13px; }
+    </style>
+}
+
+<div class="admin-tab-header">
+    <h2 style="font-family:var(--font-serif);font-size:1.3rem">Nhóm quyền</h2>
+    <button class="admin-add-btn" type="button" onclick="openGroupModal()">+ Thêm nhóm quyền</button>
+</div>
+
+<div class="admin-section-card">
+    <table id="groups-table" class="display" style="width:100%">
+        <thead>
+            <tr>
+                <th>Tên nhóm</th>
+                <th>Mô tả</th>
+                <th style="width:160px">Thao tác</th>
+            </tr>
+        </thead>
+    </table>
+</div>
+
+<div class="gm-modal-overlay" id="group-modal-overlay">
+    <div class="gm-modal-box">
+        <h3 id="group-modal-title">Thêm nhóm quyền</h3>
+        <input type="hidden" id="group-id" value="0" />
+        <div class="checkout-input-group" style="margin-bottom:16px">
+            <label class="checkout-input-label">Tên nhóm quyền</label>
+            <input type="text" id="group-name" class="checkout-input" />
+        </div>
+        <div class="checkout-input-group" style="margin-bottom:16px">
+            <label class="checkout-input-label">Mô tả</label>
+            <textarea id="group-description" class="contact-textarea" rows="3"></textarea>
+        </div>
+        <div style="display:flex;gap:12px">
+            <button class="admin-add-btn" type="button" onclick="saveGroup()">Lưu</button>
+            <button class="admin-add-btn" type="button" style="background:transparent;color:#1A1A1A;border:1px solid #e5e7eb" onclick="closeGroupModal()">Hủy</button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/toastr@2.1.4/build/toastr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function afToken() {
+            return document.querySelector('#af-token-form input[name="__RequestVerificationToken"]').value;
+        }
+
+        var groupsTable;
+        $(function () {
+            groupsTable = $('#groups-table').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: '@Url.Action("GetDataTable")',
+                    type: 'POST',
+                    data: function (d) {
+                        var order = (d.order && d.order[0]) || {};
+                        var col = (d.columns && d.columns[order.column]) || {};
+                        return {
+                            draw: d.draw,
+                            start: d.start,
+                            length: d.length,
+                            searchValue: d.search.value,
+                            sortColumn: col.name || 'Id',
+                            sortDirection: order.dir || 'desc'
+                        };
+                    }
+                },
+                columns: [
+                    { data: 'name', name: 'Name' },
+                    { data: 'description', name: 'Description' },
+                    {
+                        data: null, orderable: false,
+                        render: function (row) {
+                            return '<button class="admin-add-btn" style="padding:6px 12px;font-size:12px" onclick="editGroup(' + row.id + ')">Sửa</button> ' +
+                                   '<button class="admin-add-btn" style="padding:6px 12px;font-size:12px;background:#dc2626" onclick="deleteGroup(' + row.id + ')">Xóa</button>';
+                        }
+                    }
+                ],
+                language: { url: 'https://cdn.datatables.net/plug-ins/1.13.8/i18n/vi.json' }
+            });
+        });
+
+        function openGroupModal() {
+            document.getElementById('group-modal-title').textContent = 'Thêm nhóm quyền';
+            document.getElementById('group-id').value = '0';
+            document.getElementById('group-name').value = '';
+            document.getElementById('group-description').value = '';
+            document.getElementById('group-modal-overlay').classList.add('active');
+        }
+        function closeGroupModal() {
+            document.getElementById('group-modal-overlay').classList.remove('active');
+        }
+
+        function editGroup(id) {
+            fetch('@Url.Action("GetById")?id=' + id)
+                .then(function (r) { return r.json(); })
+                .then(function (g) {
+                    document.getElementById('group-modal-title').textContent = 'Sửa nhóm quyền';
+                    document.getElementById('group-id').value = g.id;
+                    document.getElementById('group-name').value = g.name;
+                    document.getElementById('group-description').value = g.description || '';
+                    document.getElementById('group-modal-overlay').classList.add('active');
+                });
+        }
+
+        function saveGroup() {
+            var id = document.getElementById('group-id').value;
+            var isEdit = id !== '0';
+            var url = isEdit ? '@Url.Action("Edit")' : '@Url.Action("Create")';
+            var body = new URLSearchParams();
+            body.append('Id', id);
+            body.append('Name', document.getElementById('group-name').value);
+            body.append('Description', document.getElementById('group-description').value);
+            body.append('__RequestVerificationToken', afToken());
+
+            fetch(url, { method: 'POST', body: body })
+                .then(function (r) { return r.json(); })
+                .then(function (res) {
+                    if (res.success) {
+                        toastr.success(res.message);
+                        closeGroupModal();
+                        groupsTable.ajax.reload(null, false);
+                    } else {
+                        toastr.error(res.message);
+                    }
+                });
+        }
+
+        function deleteGroup(id) {
+            Swal.fire({
+                title: 'Xóa nhóm quyền này?',
+                text: 'Hành động này không thể hoàn tác.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Xóa',
+                cancelButtonText: 'Hủy',
+                confirmButtonColor: '#dc2626'
+            }).then(function (result) {
+                if (result.isConfirmed) {
+                    var body = new URLSearchParams();
+                    body.append('id', id);
+                    body.append('__RequestVerificationToken', afToken());
+                    fetch('@Url.Action("Delete")', { method: 'POST', body: body })
+                        .then(function (r) { return r.json(); })
+                        .then(function (res) {
+                            if (res.success) {
+                                toastr.success(res.message);
+                                groupsTable.ajax.reload(null, false);
+                            } else {
+                                toastr.error(res.message);
+                            }
+                        });
+                }
+            });
+        }
+    </script>
+}

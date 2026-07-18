@@ -40,6 +40,18 @@ namespace AHUWeb.Models.ViewModels
         public string Role { get; set; } = "customer";
     }
 
+    public class GroupFormViewModel
+    {
+        public int Id { get; set; }
+
+        [Required(ErrorMessage = "Vui lòng nhập tên nhóm quyền")]
+        [StringLength(150)]
+        public string Name { get; set; } = string.Empty;
+
+        [StringLength(500)]
+        public string? Description { get; set; }
+    }
+
     public class ProductFormViewModel
     {
         public int Id { get; set; }

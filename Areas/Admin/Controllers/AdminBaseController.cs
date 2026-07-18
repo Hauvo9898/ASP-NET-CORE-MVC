@@ -9,6 +9,7 @@ namespace AHUWeb.Areas.Admin.Controllers
         {
             ["Dashboard"] = "overview",
             ["Products"] = "products",
+            ["Groups"] = "groups",
             ["Orders"] = "orders",
             ["Users"] = "users",
             ["Articles"] = "articles",
