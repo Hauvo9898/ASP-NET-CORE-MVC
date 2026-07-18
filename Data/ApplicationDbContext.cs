@@ -134,6 +134,32 @@ namespace AHUWeb.Data
                 .HasForeignKey(u => u.GroupId)
                 .OnDelete(DeleteBehavior.SetNull);
 
+            // ===== Lab 09: du lieu mau cho Group/Permission/GroupPermission qua HasData =====
+            // Id co dinh (bat buoc voi HasData) - chi la du lieu minh hoa, khong anh huong
+            // toi tai khoan admin mac dinh (van GroupId = null, khong bi gioi han - xem Lab 08).
+            modelBuilder.Entity<Group>().HasData(
+                new Group { Id = 1, Name = "Toàn quyền", Description = "Được thao tác mọi chức năng trong khu vực quản trị" },
+                new Group { Id = 2, Name = "Biên tập viên", Description = "Chỉ quản lý sản phẩm và tin tức, không quản lý nhóm quyền/người dùng" }
+            );
+
+            modelBuilder.Entity<Permission>().HasData(
+                new Permission { Id = 1, Code = "Group.Manage", Name = "Quản lý nhóm quyền" },
+                new Permission { Id = 2, Code = "Product.Manage", Name = "Quản lý sản phẩm" },
+                new Permission { Id = 3, Code = "Article.Manage", Name = "Quản lý tin tức" },
+                new Permission { Id = 4, Code = "Order.Manage", Name = "Quản lý đơn hàng" },
+                new Permission { Id = 5, Code = "User.Manage", Name = "Quản lý người dùng" }
+            );
+
+            modelBuilder.Entity<GroupPermission>().HasData(
+                new GroupPermission { Id = 1, GroupId = 1, PermissionId = 1 },
+                new GroupPermission { Id = 2, GroupId = 1, PermissionId = 2 },
+                new GroupPermission { Id = 3, GroupId = 1, PermissionId = 3 },
+                new GroupPermission { Id = 4, GroupId = 1, PermissionId = 4 },
+                new GroupPermission { Id = 5, GroupId = 1, PermissionId = 5 },
+                new GroupPermission { Id = 6, GroupId = 2, PermissionId = 2 },
+                new GroupPermission { Id = 7, GroupId = 2, PermissionId = 3 }
+            );
+
             // NOTE: the default admin account is NOT seeded here via HasData, because
             // HasData needs a fixed, pre-computed password hash baked into a migration.
             // Instead it's created at startup by Data/DbInitializer.cs using BCrypt.Net,

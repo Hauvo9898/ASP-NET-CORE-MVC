@@ -43,6 +43,18 @@
             <label class="checkout-input-label">Mô tả</label>
             <textarea id="group-description" class="contact-textarea" rows="3"></textarea>
         </div>
+        <div class="checkout-input-group" style="margin-bottom:16px">
+            <label class="checkout-input-label">Quyền của nhóm</label>
+            <div id="group-permissions-grid" style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
+                @foreach (var p in ViewBag.AllPermissions)
+                {
+                    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px">
+                        <input type="checkbox" class="group-permission-checkbox" value="@p.Id" style="width:16px;height:16px" />
+                        @p.Name <span style="color:#9ca3af">(@p.Code)</span>
+                    </label>
+                }
+            </div>
+        </div>
         <div style="display:flex;gap:12px">
             <button class="admin-add-btn" type="button" onclick="saveGroup()">Lưu</button>
             <button class="admin-add-btn" type="button" style="background:transparent;color:#1A1A1A;border:1px solid #e5e7eb" onclick="closeGroupModal()">Hủy</button>
@@ -96,11 +108,19 @@
             });
         });
 
+        function setCheckedPermissions(ids) {
+            var idSet = (ids || []).map(String);
+            document.querySelectorAll('.group-permission-checkbox').forEach(function (cb) {
+                cb.checked = idSet.indexOf(cb.value) !== -1;
+            });
+        }
+
         function openGroupModal() {
             document.getElementById('group-modal-title').textContent = 'Thêm nhóm quyền';
             document.getElementById('group-id').value = '0';
             document.getElementById('group-name').value = '';
             document.getElementById('group-description').value = '';
+            setCheckedPermissions([]);
             document.getElementById('group-modal-overlay').classList.add('active');
         }
         function closeGroupModal() {
@@ -115,6 +135,7 @@
                     document.getElementById('group-id').value = g.id;
                     document.getElementById('group-name').value = g.name;
                     document.getElementById('group-description').value = g.description || '';
+                    setCheckedPermissions(g.permissionIds);
                     document.getElementById('group-modal-overlay').classList.add('active');
                 });
         }
@@ -127,6 +148,9 @@
             body.append('Id', id);
             body.append('Name', document.getElementById('group-name').value);
             body.append('Description', document.getElementById('group-description').value);
+            document.querySelectorAll('.group-permission-checkbox:checked').forEach(function (cb) {
+                body.append('permissionIds', cb.value);
+            });
             body.append('__RequestVerificationToken', afToken());
 
             fetch(url, { method: 'POST', body: body })

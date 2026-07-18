@@ -24,7 +24,14 @@ namespace AHUWeb.Areas.Admin.Controllers
         }
 
         // GET /Admin/Groups - khung trang, du lieu bang duoc JS goi qua GetDataTable
-        public IActionResult Index() => View();
+        public async Task<IActionResult> Index()
+        {
+            // Lab 09: danh sach quyen tinh, dung de ve checkbox grid trong modal Sua/Them
+            ViewBag.AllPermissions = await _db.Permissions.OrderBy(p => p.Id)
+                .Select(p => new { p.Id, p.Code, p.Name })
+                .ToListAsync();
+            return View();
+        }
 
         // POST /Admin/Groups/GetDataTable - JQuery DataTables server-side processing (Lab 04)
         [HttpPost]
@@ -64,18 +71,25 @@ namespace AHUWeb.Areas.Admin.Controllers
             });
         }
 
-        // GET /Admin/Groups/GetById/5 - Ajax lay du lieu de gan vao Form Modal khi Sua (Lab 05)
+        // GET /Admin/Groups/GetById/5 - Ajax lay du lieu de gan vao Form Modal khi Sua (Lab 05),
+        // kem danh sach permissionIds da gan cho nhom (Lab 09) de tick san checkbox.
         [HttpGet]
         public async Task<IActionResult> GetById(int id)
         {
             var group = await _db.Groups.FindAsync(id);
             if (group == null) return NotFound();
-            return Json(new { group.Id, group.Name, group.Description });
+
+            var permissionIds = await _db.GroupPermissions
+                .Where(gp => gp.GroupId == id)
+                .Select(gp => gp.PermissionId)
+                .ToListAsync();
+
+            return Json(new { group.Id, group.Name, group.Description, permissionIds });
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(GroupFormViewModel model)
+        public async Task<IActionResult> Create(GroupFormViewModel model, List<int>? permissionIds)
         {
             if (!ModelState.IsValid)
                 return Json(new { success = false, message = "Vui lòng nhập tên nhóm quyền." });
@@ -90,12 +104,14 @@ namespace AHUWeb.Areas.Admin.Controllers
             _db.Groups.Add(group);
             await _db.SaveChangesAsync();
 
+            await SyncPermissions(group.Id, permissionIds);
+
             return Json(new { success = true, message = "Đã thêm nhóm quyền." });
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(GroupFormViewModel model)
+        public async Task<IActionResult> Edit(GroupFormViewModel model, List<int>? permissionIds)
         {
             if (!ModelState.IsValid)
                 return Json(new { success = false, message = "Vui lòng nhập tên nhóm quyền." });
@@ -110,7 +126,25 @@ namespace AHUWeb.Areas.Admin.Controllers
             group.ModifiedOn = DateTime.Now;
             await _db.SaveChangesAsync();
 
+            await SyncPermissions(group.Id, permissionIds);
+
             return Json(new { success = true, message = "Đã cập nhật nhóm quyền." });
+        }
+
+        // Lab 09: dong bo danh sach quyen cua 1 nhom - xoa het roi chen lai danh sach da chon,
+        // don gian va an toan voi so luong quyen nho nhu hien tai.
+        private async Task SyncPermissions(int groupId, List<int>? permissionIds)
+        {
+            var current = _db.GroupPermissions.Where(gp => gp.GroupId == groupId);
+            _db.GroupPermissions.RemoveRange(current);
+
+            if (permissionIds != null)
+            {
+                foreach (var pid in permissionIds.Distinct())
+                    _db.GroupPermissions.Add(new GroupPermission { GroupId = groupId, PermissionId = pid });
+            }
+
+            await _db.SaveChangesAsync();
         }
 
         // POST /Admin/Groups/Delete/5 - thay cho confirmDelete() bang SweetAlert2 (Lab 05)
