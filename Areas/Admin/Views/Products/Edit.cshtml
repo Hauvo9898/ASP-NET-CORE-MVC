@@ -3,10 +3,6 @@
     ViewData["Title"] = "Sửa sản phẩm";
 }
 
-@section Styles {
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-lite.min.css" />
-}
-
 <div class="admin-tab-header">
     <h2 style="font-family:var(--font-serif);font-size:1.3rem">Sửa sản phẩm</h2>
     <a class="admin-add-btn" asp-action="Index" style="background:transparent;color:#1A1A1A;border:1px solid #e5e7eb">Quay lại danh sách</a>
@@ -19,14 +15,3 @@
         <button class="admin-add-btn" type="submit">Lưu thay đổi</button>
     </form>
 </div>
-
-@section Scripts {
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-lite.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/lang/summernote-vi-VN.min.js"></script>
-    <script>
-        $(function () {
-            $('#Description').summernote({ height: 200, lang: 'vi-VN' });
-        });
-    </script>
-}

@@ -23,6 +23,14 @@ namespace AHUWeb.Areas.Admin.Controllers
             ("Grey", "#808080"), ("Brown", "#8B4513"), ("Pink", "#FFC0CB")
         };
         public static readonly string[] SizeOptions = { "S", "M", "L", "XL", "XXL" };
+        public static readonly string[] ShoeSizeOptions = { "36", "37", "38", "39", "40", "41", "42", "43", "44", "45" };
+
+        private void LoadFormOptions()
+        {
+            ViewBag.ColorPalette = ColorPalette;
+            ViewBag.SizeOptions = SizeOptions;
+            ViewBag.ShoeSizeOptions = ShoeSizeOptions;
+        }
 
         public ProductsController(ApplicationDbContext db, IWebHostEnvironment env)
         {
@@ -45,8 +53,7 @@ namespace AHUWeb.Areas.Admin.Controllers
         // GET /Admin/Products/Create — thay cho openProductModal() không có id
         public IActionResult Create()
         {
-            ViewBag.ColorPalette = ColorPalette;
-            ViewBag.SizeOptions = SizeOptions;
+            LoadFormOptions();
             return View(new ProductFormViewModel());
         }
 
@@ -68,11 +75,10 @@ namespace AHUWeb.Areas.Admin.Controllers
 
             if (!ModelState.IsValid)
             {
-                ViewBag.ColorPalette = ColorPalette;
-                ViewBag.SizeOptions = SizeOptions;
+                LoadFormOptions();
                 return View(model);
             }
-            
+
             var product = new Product();
             await MapFormToProduct(model, product);
             product.CreatedBy = User.Identity?.Name;
@@ -113,8 +119,7 @@ namespace AHUWeb.Areas.Admin.Controllers
                     : JsonSerializer.Deserialize<List<string>>(product.ColorsJson) ?? new()
             };
 
-            ViewBag.ColorPalette = ColorPalette;
-            ViewBag.SizeOptions = SizeOptions;
+            LoadFormOptions();
             return View(model);
         }
 
@@ -126,8 +131,7 @@ namespace AHUWeb.Areas.Admin.Controllers
 
             if (!ModelState.IsValid)
             {
-                ViewBag.ColorPalette = ColorPalette;
-                ViewBag.SizeOptions = SizeOptions;
+                LoadFormOptions();
                 return View(model);
             }
 
@@ -196,7 +200,8 @@ namespace AHUWeb.Areas.Admin.Controllers
             product.Stock = model.Stock;
             product.IsActive = model.IsActive;
             product.Featured = model.Featured;
-            product.IsComingSoon = model.IsComingSoon;
+            // IsComingSoon không còn ô trên form (yêu cầu bỏ) — không map từ model để
+            // sản phẩm "Sắp ra mắt" có sẵn (Lab 15) không bị mất cờ khi admin bấm Sửa.
             product.SizesJson = JsonSerializer.Serialize(model.SelectedSizes);
             product.ColorsJson = JsonSerializer.Serialize(model.SelectedColors);
 

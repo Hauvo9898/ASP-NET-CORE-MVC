@@ -2,6 +2,7 @@
 @{
     var palette = ((string Name, string Hex)[])ViewBag.ColorPalette;
     var sizeOptions = (string[])ViewBag.SizeOptions;
+    var shoeSizeOptions = (string[])ViewBag.ShoeSizeOptions;
 }
 
 <div asp-validation-summary="All" class="auth-error" style="display:block;margin-bottom:16px"></div>
@@ -59,8 +60,8 @@
     }
 </div>
 
-<div style="margin-bottom:24px">
-    <p class="modal-section-label">Kích cỡ</p>
+<div style="margin-bottom:24px" id="sizes-clothing">
+    <p class="modal-section-label">Kích cỡ (quần áo / phụ kiện)</p>
     <div class="size-btns">
         @foreach (var s in sizeOptions)
         {
@@ -72,6 +73,46 @@
         }
     </div>
 </div>
+
+<div style="margin-bottom:24px" id="sizes-shoes">
+    <p class="modal-section-label">Size giày</p>
+    <div class="size-btns">
+        @foreach (var s in shoeSizeOptions)
+        {
+            var checkedAttr = Model.SelectedSizes.Contains(s) ? "checked" : "";
+            <label class="size-btn @(Model.SelectedSizes.Contains(s) ? "active" : "")" style="cursor:pointer">
+                <input type="checkbox" name="SelectedSizes" value="@s" @checkedAttr style="display:none" onclick="this.parentElement.classList.toggle('active')" />
+                @s
+            </label>
+        }
+    </div>
+</div>
+
+<script>
+    // Loại "giày dép" dùng size giày; các loại còn lại dùng size chữ.
+    // Khi ĐỔI loại thì bỏ chọn nhóm bị ẩn để không lưu lẫn size áo với size giày;
+    // lúc mở form lần đầu chỉ ẩn/hiện, giữ nguyên size đã lưu của sản phẩm.
+    (function () {
+        var typeSelect = document.getElementById('Type');
+        var clothing = document.getElementById('sizes-clothing');
+        var shoes = document.getElementById('sizes-shoes');
+        function applyVisibility() {
+            var isShoes = typeSelect.value === 'giày dép';
+            clothing.style.display = isShoes ? 'none' : '';
+            shoes.style.display = isShoes ? '' : 'none';
+            return isShoes;
+        }
+        typeSelect.addEventListener('change', function () {
+            var isShoes = applyVisibility();
+            var hiddenGroup = isShoes ? clothing : shoes;
+            hiddenGroup.querySelectorAll('input[type=checkbox]').forEach(function (cb) {
+                cb.checked = false;
+                cb.parentElement.classList.remove('active');
+            });
+        });
+        applyVisibility();
+    })();
+</script>
 
 <div style="margin-bottom:24px">
     <p class="modal-section-label">Màu sắc</p>
@@ -94,9 +135,5 @@
     <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px">
         <input asp-for="Featured" type="checkbox" style="width:16px;height:16px" />
         Sản phẩm nổi bật
-    </label>
-    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px">
-        <input asp-for="IsComingSoon" type="checkbox" style="width:16px;height:16px" />
-        Sắp ra mắt
     </label>
 </div>
