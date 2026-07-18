@@ -55,13 +55,46 @@ namespace AHUWeb.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateStatus(int id, string status)
         {
-            var order = await _db.Orders.FindAsync(id);
+            if (!Statuses.Any(s => s.Key == status)) return BadRequest();
+
+            var order = await _db.Orders
+                .Include(o => o.OrderDetails).ThenInclude(od => od.Product)
+                .FirstOrDefaultAsync(o => o.Id == id);
             if (order == null) return NotFound();
+
+            var wasCancelled = order.Status == "cancelled";
+            var willBeCancelled = status == "cancelled";
+            var message = "Đã cập nhật trạng thái đơn hàng";
+
+            // Tồn kho đã bị trừ lúc đặt hàng (xem OrderController.Checkout), nên:
+            // - Hủy đơn  -> cộng trả lại kho
+            // - Kích hoạt lại đơn đã hủy -> trừ kho lần nữa, chặn nếu không còn đủ hàng
+            if (!wasCancelled && willBeCancelled)
+            {
+                foreach (var d in order.OrderDetails.Where(d => d.Product != null))
+                    d.Product!.Stock += d.Quantity;
+                message = "Đã hủy đơn và hoàn lại tồn kho";
+            }
+            else if (wasCancelled && !willBeCancelled)
+            {
+                var shortage = order.OrderDetails
+                    .Where(d => d.Product != null)
+                    .FirstOrDefault(d => d.Product!.Stock < d.Quantity);
+                if (shortage != null)
+                {
+                    TempData["ToastMessage"] =
+                        $"Không thể kích hoạt lại: \"{shortage.Product!.Name}\" chỉ còn {shortage.Product.Stock} trong kho (đơn cần {shortage.Quantity}).";
+                    return RedirectToAction(nameof(Details), new { id });
+                }
+                foreach (var d in order.OrderDetails.Where(d => d.Product != null))
+                    d.Product!.Stock -= d.Quantity;
+                message = "Đã kích hoạt lại đơn và trừ tồn kho";
+            }
 
             order.Status = status;
             await _db.SaveChangesAsync();
 
-            TempData["ToastMessage"] = "Đã cập nhật trạng thái đơn hàng";
+            TempData["ToastMessage"] = message;
             return RedirectToAction(nameof(Details), new { id });
         }
     }
