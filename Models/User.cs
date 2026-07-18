@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AHUWeb.Models
 {
@@ -30,6 +31,12 @@ namespace AHUWeb.Models
         // Lab 06: anh dai dien, upload qua Ajax FormData (xem AccountController.UploadAvatar)
         [StringLength(500)]
         public string? AvatarUrl { get; set; }
+
+        // Lab 08: gan them vao 1 "Nhom quyen" (tuy chon) de gioi han quyen chi tiet hon
+        // trong khu vuc admin - khong thay the cot Role (admin/customer) dang dung that.
+        public int? GroupId { get; set; }
+        [ForeignKey(nameof(GroupId))]
+        public Group? Group { get; set; }
 
         public ICollection<Order> Orders { get; set; } = new List<Order>();
     }

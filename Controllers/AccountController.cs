@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using AHUWeb.Data;
+using AHUWeb.Helpers;
 using AHUWeb.Models;
 using AHUWeb.Models.ViewModels;
 using Microsoft.AspNetCore.Authentication;
@@ -149,6 +150,7 @@ namespace AHUWeb.Controllers
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            HttpContext.Session.Remove(RequirePermissionAttribute.PermissionsSessionKey);
             return RedirectToAction("Index", "Home");
         }
 
@@ -169,6 +171,23 @@ namespace AHUWeb.Controllers
             };
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(identity));
+
+            // Lab 08: neu tai khoan da duoc gan vao 1 Nhom quyen, nap danh sach ma quyen
+            // cua nhom do vao Session - song song voi Cookie Auth, khong thay the. Luon
+            // xoa/ghi de ro rang (khong chi set khi co GroupId) de tranh ma quyen cua lan
+            // dang nhap truoc (tai khoan khac, cung trinh duyet) con sot lai trong Session.
+            if (user.GroupId.HasValue)
+            {
+                var codes = await _db.GroupPermissions
+                    .Where(gp => gp.GroupId == user.GroupId.Value)
+                    .Select(gp => gp.Permission!.Code)
+                    .ToListAsync();
+                HttpContext.Session.SetString(RequirePermissionAttribute.PermissionsSessionKey, string.Join(",", codes));
+            }
+            else
+            {
+                HttpContext.Session.Remove(RequirePermissionAttribute.PermissionsSessionKey);
+            }
         }
     }
 }

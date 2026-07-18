@@ -127,6 +127,13 @@ namespace AHUWeb.Data
                 .HasForeignKey(gp => gp.PermissionId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            // ===== Lab 08: User <-> Group (tuy chon, khong thay the cot User.Role) =====
+            modelBuilder.Entity<User>()
+                .HasOne(u => u.Group)
+                .WithMany(g => g.Users)
+                .HasForeignKey(u => u.GroupId)
+                .OnDelete(DeleteBehavior.SetNull);
+
             // NOTE: the default admin account is NOT seeded here via HasData, because
             // HasData needs a fixed, pre-computed password hash baked into a migration.
             // Instead it's created at startup by Data/DbInitializer.cs using BCrypt.Net,

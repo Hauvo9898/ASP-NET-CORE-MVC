@@ -13,6 +13,7 @@ namespace AHUWeb.Areas.Admin.Controllers
     // Product/User/Order dang chay that.
     [Area("Admin")]
     [Authorize(Roles = "admin")]
+    [RequirePermission("Group.Manage")]
     public class GroupsController : AdminBaseController
     {
         private readonly ApplicationDbContext _db;

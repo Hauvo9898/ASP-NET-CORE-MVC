@@ -19,6 +19,7 @@ namespace AHUWeb.Models
         public string? Description { get; set; }
 
         public ICollection<GroupPermission> GroupPermissions { get; set; } = new List<GroupPermission>();
+        public ICollection<User> Users { get; set; } = new List<User>();
 
         public string? CreatedBy { get; set; }
         public DateTime? CreatedOn { get; set; }
