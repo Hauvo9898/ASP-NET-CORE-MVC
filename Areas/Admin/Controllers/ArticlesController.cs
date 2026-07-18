@@ -80,6 +80,27 @@ namespace AHUWeb.Areas.Admin.Controllers
             model.Image = $"/images/articles/{fileName}";
         }
 
+        // POST /Admin/Articles/UploadImage - Lab 12: callback onImageUpload cua Summernote,
+        // luu file that va chi tra ve URL (khong luu Base64 vao noi dung bai viet).
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UploadImage(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                return Json(new { success = false, message = "Không có ảnh nào được gửi lên." });
+
+            var uploadsDir = Path.Combine(_env.WebRootPath, "images", "articles");
+            Directory.CreateDirectory(uploadsDir);
+            var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
+            var filePath = Path.Combine(uploadsDir, fileName);
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            return Json(new { success = true, url = $"/images/articles/{fileName}" });
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)

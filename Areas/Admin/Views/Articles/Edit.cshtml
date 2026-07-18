@@ -3,6 +3,10 @@
     ViewData["Title"] = Model.Id == 0 ? "Thêm bài viết" : "Sửa bài viết";
 }
 
+@section Styles {
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-lite.min.css" />
+}
+
 <div class="admin-tab-header">
     <h2 style="font-family:var(--font-serif);font-size:1.3rem">@ViewData["Title"]</h2>
     <a class="admin-add-btn" asp-action="Index" style="background:transparent;color:#1A1A1A;border:1px solid #e5e7eb">Quay lại danh sách</a>
@@ -39,3 +43,37 @@
         <button class="admin-add-btn" type="submit">Lưu bài viết</button>
     </form>
 </div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-lite.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/lang/summernote-vi-VN.min.js"></script>
+    <script>
+        $(function () {
+            $('#Content').summernote({
+                height: 300,
+                lang: 'vi-VN',
+                callbacks: {
+                    onImageUpload: function (files) {
+                        var data = new FormData();
+                        data.append('file', files[0]);
+                        data.append('__RequestVerificationToken', $('input[name="__RequestVerificationToken"]').val());
+                        $.ajax({
+                            url: '@Url.Action("UploadImage")',
+                            method: 'POST',
+                            data: data,
+                            processData: false,
+                            contentType: false
+                        }).done(function (res) {
+                            if (res.success) {
+                                $('#Content').summernote('insertImage', res.url);
+                            } else {
+                                showToast(res.message, 'error');
+                            }
+                        });
+                    }
+                }
+            });
+        });
+    </script>
+}

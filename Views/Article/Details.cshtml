@@ -36,7 +36,7 @@
     var firstParagraph = (Model.Content ?? "").Split('\n', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? "";
     var enableDropCap = firstParagraph.Length >= 240;
 }
-<div class="journal-prose @(enableDropCap ? "has-dropcap" : "")">@Model.Content</div>
+<div class="journal-prose @(enableDropCap ? "has-dropcap" : "")">@Html.Raw(Model.Content)</div>
 
 @if (related.Count > 0)
 {
