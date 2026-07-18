@@ -13,6 +13,10 @@ namespace AHUWeb.Data
         public DbSet<Product> Products { get; set; } = null!;
         public DbSet<Article> Articles { get; set; } = null!;
         public DbSet<User> Users { get; set; } = null!;
+        public DbSet<Category> Categories { get; set; } = null!;
+        public DbSet<Group> Groups { get; set; } = null!;
+        public DbSet<Permission> Permissions { get; set; } = null!;
+        public DbSet<GroupPermission> GroupPermissions { get; set; } = null!;
         public DbSet<Order> Orders { get; set; } = null!;
         public DbSet<OrderDetail> OrderDetails { get; set; } = null!;
         public DbSet<Staff> Staffs { get; set; } = null!;
@@ -103,6 +107,25 @@ namespace AHUWeb.Data
                 .WithMany()
                 .HasForeignKey(c => c.UserId)
                 .OnDelete(DeleteBehavior.SetNull);
+
+            // ===== Lab 01: Category cha-con, Group/Permission/GroupPermission =====
+            modelBuilder.Entity<Category>()
+                .HasOne(c => c.Parent)
+                .WithMany(c => c.Children)
+                .HasForeignKey(c => c.ParentId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<GroupPermission>()
+                .HasOne(gp => gp.Group)
+                .WithMany(g => g.GroupPermissions)
+                .HasForeignKey(gp => gp.GroupId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<GroupPermission>()
+                .HasOne(gp => gp.Permission)
+                .WithMany(p => p.GroupPermissions)
+                .HasForeignKey(gp => gp.PermissionId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             // NOTE: the default admin account is NOT seeded here via HasData, because
             // HasData needs a fixed, pre-computed password hash baked into a migration.
