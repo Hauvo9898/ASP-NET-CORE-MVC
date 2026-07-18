@@ -66,12 +66,17 @@
                     </div>
                 }
             </section>
+            @{
+                var tax = FormatHelper.CalculateTax(Model.Total);
+                var grandTotal = FormatHelper.CalculateGrandTotal(Model.Total);
+            }
             <section class="odm-totals">
                 <div class="odm-total-line"><span>Giá trị hàng hóa</span><span>@FormatHelper.FormatPrice(Model.Total)</span></div>
-                <div class="odm-total-line"><span>Bảo hiểm &amp; Logistics</span><span class="odm-complimentary">COMPLIMENTARY</span></div>
+                <div class="odm-total-line"><span>Thuế VAT (10%)</span><span>@FormatHelper.FormatPrice(tax)</span></div>
+                <div class="odm-total-line"><span>Phí vận chuyển</span><span>@FormatHelper.FormatPrice(FormatHelper.ShippingFee)</span></div>
                 <div class="odm-grand-total">
-                    <div><div class="odm-grand-label">Tổng giá trị định danh</div><div class="odm-grand-sub">Thuế VAT đã được khấu trừ bởi AHU</div></div>
-                    <div class="odm-grand-price">@FormatHelper.FormatPrice(Model.Total)</div>
+                    <div><div class="odm-grand-label">Tổng giá trị định danh</div><div class="odm-grand-sub">Đã bao gồm thuế VAT và phí vận chuyển</div></div>
+                    <div class="odm-grand-price">@FormatHelper.FormatPrice(grandTotal)</div>
                 </div>
             </section>
         </div>

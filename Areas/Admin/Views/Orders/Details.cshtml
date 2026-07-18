@@ -33,9 +33,21 @@
                     </div>
                 </div>
             }
+            @{
+                var tax = FormatHelper.CalculateTax(Model.Total);
+                var grandTotal = FormatHelper.CalculateGrandTotal(Model.Total);
+            }
+            <div class="aom-total-row" style="border-bottom:none;padding-bottom:0">
+                <span class="aom-total-label" style="font-weight:400;font-size:12px">Giá trị hàng hóa</span>
+                <span class="aom-total-price" style="font-size:13px">@FormatHelper.FormatPrice(Model.Total)</span>
+            </div>
+            <div class="aom-total-row" style="border-bottom:none;padding-top:0">
+                <span class="aom-total-label" style="font-weight:400;font-size:12px">Thuế VAT (10%) + phí vận chuyển</span>
+                <span class="aom-total-price" style="font-size:13px">@FormatHelper.FormatPrice(tax + FormatHelper.ShippingFee)</span>
+            </div>
             <div class="aom-total-row">
                 <span class="aom-total-label">Tổng giá trị thanh toán</span>
-                <span class="aom-total-price">@FormatHelper.FormatPrice(Model.Total)</span>
+                <span class="aom-total-price">@FormatHelper.FormatPrice(grandTotal)</span>
             </div>
         </div>
 

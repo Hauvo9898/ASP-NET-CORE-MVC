@@ -95,5 +95,14 @@ namespace AHUWeb.Helpers
             "angry" => "Giận",
             _ => "Thích"
         };
+
+        // ===== Lab 13: thuế + phí vận chuyển cho hóa đơn — chỉ tính ở tầng hiển thị,
+        // KHÔNG đổi cột Order.Total (đang là doanh thu gốc, Dashboard/Reports dùng trực tiếp) =====
+        public const decimal TaxRate = 0.10m;
+        public const decimal ShippingFee = 30000m;
+
+        public static decimal CalculateTax(decimal subtotal) => Math.Round(subtotal * TaxRate);
+
+        public static decimal CalculateGrandTotal(decimal subtotal) => subtotal + CalculateTax(subtotal) + ShippingFee;
     }
 }
