@@ -1,0 +1,51 @@
+@model UserFormViewModel
+@{
+    ViewData["Title"] = Model.Id == 0 ? "Thêm hội viên" : "Sửa người dùng";
+}
+
+<div class="admin-tab-header">
+    <h2 style="font-family:var(--font-serif);font-size:1.3rem">@ViewData["Title"]</h2>
+    <a class="admin-add-btn" asp-action="Index" style="background:transparent;color:#1A1A1A;border:1px solid #e5e7eb">Quay lại danh sách</a>
+</div>
+
+<div class="admin-section-card">
+    <form asp-action="@(Model.Id == 0 ? "Create" : "Edit")" asp-route-id="@Model.Id" method="post">
+        <div asp-validation-summary="ModelOnly" class="auth-error" style="display:block;margin-bottom:16px"></div>
+        <input type="hidden" asp-for="Id" />
+
+        @if (Model.Id == 0)
+        {
+            <div class="checkout-shipping-info" style="margin-bottom:24px">
+                <div>
+                    <p class="checkout-shipping-title">Mật khẩu mặc định</p>
+                    <p class="checkout-shipping-desc">Tài khoản mới sẽ có mật khẩu mặc định là <strong>@AHUWeb.Areas.Admin.Controllers.UsersController.DefaultNewUserPassword</strong>. Đề nghị đổi mật khẩu sau lần đăng nhập đầu.</p>
+                </div>
+            </div>
+        }
+
+        <div class="checkout-grid">
+            <div class="checkout-input-group">
+                <label class="checkout-input-label">Họ và tên</label>
+                <input asp-for="FullName" class="checkout-input" />
+            </div>
+            <div class="checkout-input-group">
+                <label class="checkout-input-label">Tên tài khoản</label>
+                <input asp-for="Username" class="checkout-input" readonly="@(Model.Id != 0)" />
+            </div>
+        </div>
+        <div class="checkout-grid">
+            <div class="checkout-input-group">
+                <label class="checkout-input-label">Email</label>
+                <input asp-for="Email" type="email" class="checkout-input" />
+            </div>
+            <div class="checkout-input-group">
+                <label class="checkout-input-label">Vai trò</label>
+                <select asp-for="Role" class="checkout-input">
+                    <option value="customer">Khách hàng</option>
+                    <option value="admin">Quản trị viên</option>
+                </select>
+            </div>
+        </div>
+        <button class="admin-add-btn" type="submit">Lưu thông tin</button>
+    </form>
+</div>

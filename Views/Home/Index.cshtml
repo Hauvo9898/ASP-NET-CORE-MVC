@@ -1,0 +1,59 @@
+@model List<Product>
+@{
+    ViewData["Title"] = "Trang chủ";
+    ViewData["IsHome"] = true;
+}
+
+<section class="hero-section">
+    <img src="~/images/h4.jpg" alt="Luxury Fashion Hero" class="hero-bg" referrerpolicy="no-referrer" />
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+        <h1 class="hero-title">AHU</h1>
+        <p class="hero-subtitle">Nâng tầm diện mạo, khẳng định vị thế</p>
+        <div class="hero-cta">
+            <a class="luxury-button" asp-controller="Product" asp-action="Index">Khám phá bộ sưu tập</a>
+        </div>
+    </div>
+</section>
+
+<section class="collections-section">
+    <div class="section-title-center">
+        <h2 class="section-title">Bộ sưu tập nổi bật</h2>
+        <div class="gold-divider"></div>
+    </div>
+    <div class="collections-grid">
+        <a class="collection-card" asp-controller="Product" asp-action="Index" asp-route-type="quần áo">
+            <img src="~/images/h1.jpg" alt="Quần áo" referrerpolicy="no-referrer" />
+            <div class="collection-overlay"><h3 class="collection-name">Quần áo</h3></div>
+        </a>
+        <a class="collection-card" asp-controller="Product" asp-action="Index" asp-route-type="phụ kiện">
+            <img src="~/images/h2.jpg" alt="Phụ kiện" referrerpolicy="no-referrer" />
+            <div class="collection-overlay"><h3 class="collection-name">Phụ kiện</h3></div>
+        </a>
+        <a class="collection-card" asp-controller="Product" asp-action="Index" asp-route-type="giày dép">
+            <img src="~/images/h3.jpg" alt="Giày dép" referrerpolicy="no-referrer" />
+            <div class="collection-overlay"><h3 class="collection-name">Giày dép</h3></div>
+        </a>
+    </div>
+</section>
+
+@if (Model.Count > 0)
+{
+    <section class="featured-products-section">
+        <div class="section-title-center">
+            <h2 class="section-title">Sản phẩm nổi bật</h2>
+            <div class="gold-divider"></div>
+        </div>
+        <div class="max-w-7xl products-grid" style="margin:0 auto">
+            @foreach (var p in Model)
+            {
+                @await Html.PartialAsync("~/Views/Product/_ProductCard.cshtml", p)
+            }
+        </div>
+        <div class="featured-see-all">
+            <a class="luxury-button" asp-controller="Product" asp-action="Featured">Xem tất cả sản phẩm nổi bật</a>
+        </div>
+    </section>
+
+    @await Html.PartialAsync("~/Views/Product/_QuickViewModal.cshtml")
+}

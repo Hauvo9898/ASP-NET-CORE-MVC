@@ -1,0 +1,48 @@
+@model Feedback
+@{
+    ViewData["Title"] = "Cuộc hội thoại";
+    var topicLabels = new Dictionary<string, string> { ["gop-y"] = "Góp ý", ["ho-tro"] = "Hỗ trợ đơn hàng", ["hop-tac"] = "Hợp tác", ["khac"] = "Khác" };
+    var messages = Model.Messages.OrderBy(m => m.SentAt).ToList();
+}
+
+<div class="chat-page">
+    <a class="oh-back-link" asp-action="MyMessages">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        Quay lại hộp thư
+    </a>
+
+    <div class="chat-header-card">
+        <div>
+            <div class="chat-header-title">@(!string.IsNullOrEmpty(Model.Topic) ? topicLabels.GetValueOrDefault(Model.Topic, "Khác") : "Liên hệ")</div>
+            <div class="chat-header-sub">Bắt đầu @Model.Date.ToString("dd/MM/yyyy")</div>
+        </div>
+        @if (!string.IsNullOrEmpty(Model.OrderRef))
+        {
+            <span class="acm-order-tag">@Model.OrderRef</span>
+        }
+    </div>
+
+    <div class="chat-thread">
+        @foreach (var m in messages)
+        {
+            bool isOwn = m.SenderRole == "customer";
+            <div class="chat-bubble-row @(isOwn ? "own" : "other")">
+                @if (!isOwn)
+                {
+                    <span class="chat-bubble-sender">AHU Support</span>
+                }
+                <div class="chat-bubble">@m.Content</div>
+                <span class="chat-bubble-time">@m.SentAt.ToString("HH:mm dd/MM/yyyy")</span>
+            </div>
+        }
+    </div>
+
+    <form asp-action="SendMessage" method="post" class="chat-input-card">
+        <input type="hidden" name="id" value="@Model.Id" />
+        <textarea name="content" placeholder="Nhập tin nhắn..." required></textarea>
+        <button class="chat-send-btn" type="submit">
+            Gửi
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+    </form>
+</div>

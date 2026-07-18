@@ -1,0 +1,72 @@
+@model List<ForumPost>
+@{
+    ViewData["Title"] = "Bài viết của tôi";
+}
+
+<div class="max-w-6xl" style="padding:40px 16px">
+    <a class="oh-back-link" asp-controller="Account" asp-action="Profile">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        Quay lại thông tin tài khoản
+    </a>
+
+    <div style="display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:16px; margin-bottom:40px">
+        <div>
+            <h1 class="oh-title" style="font-size:2.25rem">Bài viết của tôi</h1>
+            <div class="oh-subtitle">
+                <div class="oh-subtitle-line"></div>
+                <p class="oh-subtitle-text">Diễn đàn cộng đồng AHU</p>
+            </div>
+        </div>
+        <a class="luxury-button" asp-action="Create">Đăng bài mới</a>
+    </div>
+
+    @if (Model.Count == 0)
+    {
+        <div class="oh-empty">
+            <div class="oh-empty-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#e5e7eb" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            </div>
+            <h3 class="oh-empty-title">Bạn chưa đăng bài nào</h3>
+            <p class="oh-empty-desc">Chia sẻ outfit hoặc góc nhìn phong cách đầu tiên của bạn với cộng đồng AHU.</p>
+            <a class="luxury-button" asp-action="Create">Đăng bài ngay</a>
+        </div>
+    }
+    else
+    {
+        <div style="display:flex; flex-direction:column; gap:20px">
+            @foreach (var p in Model)
+            {
+                <div class="odm-box" style="position:static; max-height:none">
+                    <div class="odm-header">
+                        <div>
+                            <span class="order-status-badge @FormatHelper.ForumStatusBadgeClass(p.Status)">@FormatHelper.ForumStatusLabel(p.Status)</span>
+                            @if (p.IsPinned)
+                            {
+                                <span class="order-status-badge" style="color:var(--luxury-gold-antique);background:#faf8f4;border-color:#e9dcc0;margin-left:8px">Đã ghim</span>
+                            }
+                            <p class="odm-info-sub" style="margin-top:8px">@p.CreatedAt.ToString("dd/MM/yyyy HH:mm")</p>
+                        </div>
+                    </div>
+                    <div class="odm-body">
+                        <p style="font-size:14px; line-height:1.7; color:#374151; white-space:pre-line; margin-bottom:@(p.Images.Count > 0 ? "16px" : "0")">@p.Content</p>
+                        @if (p.Images.Count > 0)
+                        {
+                            <div style="display:flex; gap:8px; flex-wrap:wrap">
+                                @foreach (var img in p.Images)
+                                {
+                                    <img src="@img.ImagePath" alt="" style="width:88px;height:88px;object-fit:cover;border:1px solid #f3f4f6" />
+                                }
+                            </div>
+                        }
+                        @if (p.Status == "rejected")
+                        {
+                            <div style="background:#fef2f2; border-left:3px solid #ef4444; padding:12px 16px; margin-top:16px">
+                                <p style="font-size:12px; color:#991b1b">Bài viết này chưa phù hợp để hiển thị công khai. Bạn có thể đăng bài khác.</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

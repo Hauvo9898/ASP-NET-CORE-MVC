@@ -1,0 +1,234 @@
+@{
+    var isAuthenticated = User.Identity != null && User.Identity.IsAuthenticated;
+    var isAdmin = User.IsInRole("admin");
+    var displayName = isAuthenticated ? (User.FindFirst("FullName")?.Value ?? User.Identity!.Name) : "Khách hàng";
+    var isHome = ViewData["IsHome"] as bool? ?? false;
+    var navColorClass = isHome ? "nav-color-top" : "nav-color-scrolled";
+}
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@(ViewData["Title"] != null ? ViewData["Title"] + " - AHU" : "AHU - Thời trang Cao cấp")</title>
+    <link rel="stylesheet" href="~/css/style.css" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body data-is-home="@(isHome ? "1" : "0")">
+<div id="app">
+
+    <!-- ===== NAVBAR ===== -->
+    <nav id="navbar" class="@(isHome ? "" : "scrolled")">
+        <div class="navbar-inner">
+            <div class="navbar-left">
+                <div class="nav-links-desktop">
+                    <a class="nav-link-item @navColorClass" id="nav-shop-link" asp-controller="Product" asp-action="Index">Cửa hàng</a>
+                    <a class="nav-link-item @navColorClass" id="nav-featured-link" asp-controller="Product" asp-action="Featured">Nổi bật</a>
+                    <a class="nav-link-item @navColorClass" id="nav-contact-link" asp-controller="Contact" asp-action="Index">Liên hệ</a>
+                    <a class="nav-link-item @navColorClass" id="nav-news-link" asp-controller="Article" asp-action="Index">Tin tức</a>
+                    <a class="nav-link-item @navColorClass" id="nav-forum-link" asp-controller="Forum" asp-action="Index">Diễn đàn</a>
+                </div>
+                <button class="mobile-menu-btn nav-icon-btn @navColorClass" id="mobile-menu-btn" onclick="openMobileMenu()" type="button">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                </button>
+            </div>
+
+            <div class="navbar-center">
+                <a class="nav-logo @navColorClass" id="nav-logo" asp-controller="Home" asp-action="Index" style="cursor:pointer">AHU</a>
+            </div>
+
+            <div class="navbar-right">
+                <button class="nav-icon-btn @navColorClass" id="nav-search-btn" onclick="openSearch()" type="button">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                </button>
+                @if (isAdmin)
+                {
+                    <div class="nav-user-dropdown" id="nav-user-dropdown">
+                        <button class="nav-icon-btn @navColorClass" id="nav-user-btn" type="button" onclick="toggleUserDropdown(event)" aria-haspopup="true" aria-expanded="false">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                            <span class="label" id="nav-user-label">Quản trị</span>
+                            <svg class="dropdown-caret" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                        </button>
+                        <div class="nav-user-dropdown-menu" id="nav-user-dropdown-menu">
+                            <a class="dropdown-item" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                                Trang quản trị
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <form asp-controller="Account" asp-action="Logout" method="post">
+                                <button class="dropdown-item logout-item" type="submit">
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                                    Đăng xuất
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                }
+                else if (isAuthenticated)
+                {
+                    <div class="nav-user-dropdown" id="nav-user-dropdown">
+                        <button class="nav-icon-btn @navColorClass" id="nav-user-btn" type="button" onclick="toggleUserDropdown(event)" aria-haspopup="true" aria-expanded="false">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                            <span class="label" id="nav-user-label">@displayName</span>
+                            <svg class="dropdown-caret" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                        </button>
+                        <div class="nav-user-dropdown-menu" id="nav-user-dropdown-menu">
+                            <a class="dropdown-item" asp-controller="Order" asp-action="History">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                                Đơn hàng của tôi
+                            </a>
+                            <a class="dropdown-item" asp-controller="Account" asp-action="Profile">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                Thông tin tài khoản
+                            </a>
+                            <a class="dropdown-item" asp-controller="Contact" asp-action="MyMessages">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                                Phản hồi
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <form asp-controller="Account" asp-action="Logout" method="post">
+                                <button class="dropdown-item logout-item" type="submit">
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                                    Đăng xuất
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <a class="nav-icon-btn @navColorClass" id="nav-user-btn" asp-controller="Account" asp-action="Login">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        <span class="label" id="nav-user-label">Khách hàng</span>
+                    </a>
+                }
+                <a class="nav-icon-btn @navColorClass" id="nav-cart-btn" asp-controller="Cart" asp-action="Index" style="position:relative">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                    @await Component.InvokeAsync("CartBadge")
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile menu -->
+    <div id="mobile-menu">
+        <div class="mobile-menu-close">
+            <button onclick="closeMobileMenu()" style="background:none;border:none;cursor:pointer" type="button">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+        <div class="mobile-menu-links">
+            <a asp-controller="Home" asp-action="Index" onclick="closeMobileMenu()">Trang chủ</a>
+            <a asp-controller="Product" asp-action="Index" onclick="closeMobileMenu()">Cửa hàng</a>
+            <a asp-controller="Product" asp-action="Featured" onclick="closeMobileMenu()">Nổi bật</a>
+            <a asp-controller="Article" asp-action="Index" onclick="closeMobileMenu()">Tin tức</a>
+            <a asp-controller="Forum" asp-action="Index" onclick="closeMobileMenu()">Diễn đàn</a>
+            <a asp-controller="Contact" asp-action="Index" onclick="closeMobileMenu()">Liên hệ</a>
+            <a asp-controller="Cart" asp-action="Index" onclick="closeMobileMenu()" id="mobile-cart-label">Giỏ hàng</a>
+            <div class="divider"></div>
+            @if (isAdmin)
+            {
+                <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" onclick="closeMobileMenu()">Trang quản trị</a>
+                <form asp-controller="Account" asp-action="Logout" method="post" id="mobile-logout-form">
+                    <a href="#" onclick="document.getElementById('mobile-logout-form').submit();return false;">Đăng xuất</a>
+                </form>
+            }
+            else if (isAuthenticated)
+            {
+                <a asp-controller="Order" asp-action="History" onclick="closeMobileMenu()">Đơn hàng của tôi</a>
+                <form asp-controller="Account" asp-action="Logout" method="post" id="mobile-logout-form">
+                    <a href="#" onclick="document.getElementById('mobile-logout-form').submit();return false;">Đăng xuất</a>
+                </form>
+            }
+            else
+            {
+                <a asp-controller="Account" asp-action="Login" onclick="closeMobileMenu()">Đăng nhập Hội viên</a>
+            }
+        </div>
+    </div>
+
+    <!-- Search overlay -->
+    <div id="search-overlay">
+        <button class="search-close-btn" onclick="closeSearch()" type="button">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+        <div class="search-inner">
+            <div class="search-form">
+                <input type="text" id="search-input" class="search-input" placeholder="Tìm kiếm sản phẩm..." oninput="handleSearchInput(this.value)" />
+                <button type="button" class="search-submit" onclick="submitSearch()">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                </button>
+            </div>
+            <div class="search-results" id="search-results-wrap" style="display:none">
+                <p class="search-results-label">Kết quả gợi ý</p>
+                <div class="search-results-grid" id="search-results-grid"></div>
+                <button class="search-view-all" onclick="submitSearch()">Xem tất cả kết quả</button>
+            </div>
+            <div id="search-no-results" style="display:none;text-align:center;padding:80px 0">
+                <p style="color:#9ca3af;font-weight:300;font-style:italic">Không tìm thấy tác phẩm nào phù hợp.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MAIN ===== -->
+    <main>
+        @RenderBody()
+    </main>
+
+    <footer>
+        <div class="footer-inner">
+            <div>
+                <div class="footer-brand">AHU</div>
+                <p class="footer-desc">Chế tác sự sang trọng vượt thời gian cho những người sành sỏi hiện đại. Các bộ sưu tập của chúng tôi hiện thân cho đỉnh cao của thời trang xa xỉ.</p>
+            </div>
+            <div>
+                <h4 class="footer-col-title">Cửa hàng</h4>
+                <ul class="footer-links">
+                    <li><a asp-controller="Product" asp-action="Index" asp-route-type="quần áo">Quần áo</a></li>
+                    <li><a asp-controller="Product" asp-action="Index" asp-route-type="phụ kiện">Phụ kiện</a></li>
+                    <li><a asp-controller="Product" asp-action="Index" asp-route-type="giày dép">Giày dép</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="footer-col-title">Hỗ trợ</h4>
+                <ul class="footer-links">
+                    <li><a asp-controller="Contact" asp-action="Index">Liên hệ &amp; Góp ý</a></li>
+                    <li><a href="#">Giao hàng &amp; Đổi trả</a></li>
+                    <li><a href="#">Chính sách bảo mật</a></li>
+                    <li><a href="#">Điều khoản dịch vụ</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="footer-col-title">Bản tin</h4>
+                <p class="footer-newsletter-desc">Đăng ký để nhận cập nhật về các bộ sưu tập mới.</p>
+                <div class="footer-newsletter-form">
+                    <input type="email" class="footer-newsletter-input" placeholder="Địa chỉ Email" />
+                    <button class="footer-newsletter-btn" type="button">Tham gia</button>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div>&copy; @DateTime.Now.Year AHU. All rights reserved.</div>
+            <a class="footer-admin-link" asp-controller="Account" asp-action="Login" asp-route-mode="admin">Cổng quản trị hệ thống</a>
+        </div>
+    </footer>
+
+</div><!-- #app -->
+
+<!-- Toast -->
+<div id="toast">
+    <span id="toast-icon"></span>
+    <span id="toast-msg"></span>
+</div>
+
+<!-- Token dùng cho các fetch() POST trong site.js (thêm vào giỏ nhanh, Quick View...) -->
+<form id="af-token-form" style="display:none">@Html.AntiForgeryToken()</form>
+
+<script src="~/js/site.js"></script>
+@if (TempData["ToastMessage"] != null)
+{
+    <script>document.addEventListener('DOMContentLoaded', function(){ showToast(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["ToastMessage"]))); });</script>
+}
+@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

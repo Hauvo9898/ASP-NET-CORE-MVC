@@ -1,0 +1,19 @@
+@model Order
+@{
+    ViewData["Title"] = "Đặt hàng thành công";
+}
+
+<div class="cart-success">
+    <div class="success-icon">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <h1 class="success-title">Đặt hàng thành công</h1>
+    <p class="success-desc">
+        Cảm ơn bạn đã tin chọn AHU. Mã đơn hàng của bạn là <span class="success-order-id">#@Model.Id.ToString("D6")</span>.<br />
+        Chúng tôi sẽ liên hệ sớm nhất để xác nhận đơn hàng.
+    </p>
+    <div class="success-actions">
+        <a class="luxury-button" asp-controller="Product" asp-action="Index">Tiếp tục mua sắm</a>
+        <a class="success-secondary-btn" asp-controller="Home" asp-action="Index">Quay về trang chủ</a>
+    </div>
+</div>

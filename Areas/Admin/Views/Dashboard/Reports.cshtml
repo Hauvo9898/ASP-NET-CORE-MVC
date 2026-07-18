@@ -1,0 +1,42 @@
+@model AdminReportsViewModel
+@{
+    ViewData["Title"] = "Báo cáo doanh thu";
+    var maxVal = Model.RevenueByDay.Count > 0 ? Math.Max(Model.RevenueByDay.Max(x => x.Revenue), 1) : 1;
+}
+
+<div class="admin-section-card" style="margin-bottom:32px">
+    <div class="report-stat-box" style="margin-bottom:16px">
+        <div>
+            <p style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:#9ca3af">Tổng doanh thu</p>
+            <h3 style="font-size:1.5rem;font-family:var(--font-serif)">@FormatHelper.FormatPrice(Model.TotalRevenue)</h3>
+        </div>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#D4AF37" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+    </div>
+    <div class="report-stat-box" style="margin-bottom:16px">
+        <div>
+            <p style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:#9ca3af">Sản phẩm đã bán</p>
+            <h3 style="font-size:1.5rem;font-family:var(--font-serif)">@Model.TotalProductsSold kiện hàng</h3>
+        </div>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#D4AF37" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+    </div>
+    <div class="report-stat-box">
+        <div>
+            <p style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:#9ca3af">Lượt khách hàng</p>
+            <h3 style="font-size:1.5rem;font-family:var(--font-serif)">@Model.TotalUsers người dùng</h3>
+        </div>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#D4AF37" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    </div>
+</div>
+
+<div class="chart-placeholder">
+    <p>Biểu đồ doanh thu 14 ngày gần nhất</p>
+    <div class="bar-chart-simple">
+        @foreach (var (label, revenue) in Model.RevenueByDay)
+        {
+            <div class="trend-bar-item">
+                <div class="trend-bar" style="height:@(Math.Max(4, (double)(revenue / maxVal) * 160))px" title="@FormatHelper.FormatPrice(revenue)"></div>
+                <div class="trend-bar-label">@label</div>
+            </div>
+        }
+    </div>
+</div>

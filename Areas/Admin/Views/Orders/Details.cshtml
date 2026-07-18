@@ -1,0 +1,63 @@
+@model Order
+@{
+    ViewData["Title"] = "Chi tiết đơn hàng #" + Model.Id.ToString("D6");
+}
+
+<a class="admin-add-btn" asp-action="Index" style="background:transparent;color:#1A1A1A;border:1px solid #e5e7eb;margin-bottom:24px;display:inline-flex">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    Quay lại danh sách đơn hàng
+</a>
+
+<div class="admin-section-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+        <div>
+            <h3 style="font-family:var(--font-serif);font-size:1.3rem">CHI TIẾT VẬN ĐƠN #@Model.Id.ToString("D6")</h3>
+            <p style="font-size:12px;color:#9ca3af">Ngày tạo: @Model.Date.ToString("dd/MM/yyyy HH:mm")</p>
+        </div>
+        <span class="status-pill @FormatHelper.StatusBadgeClass(Model.Status)" style="font-size:12px">@FormatHelper.StatusLabel(Model.Status)</span>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px" class="admin-order-detail-grid">
+        <div>
+            <div class="admin-modal-inner-title" style="color:#D4AF37">Danh sách sản phẩm</div>
+            @foreach (var item in Model.OrderDetails)
+            {
+                <div class="aom-item">
+                    <div>
+                        <div class="aom-item-name">@item.Product?.Name</div>
+                        <div class="aom-item-sub">Số lượng: @item.Quantity</div>
+                    </div>
+                    <div style="text-align:right">
+                        <div class="aom-item-price">@FormatHelper.FormatPrice(item.Price) x @item.Quantity</div>
+                        <div class="aom-item-sub-price">@FormatHelper.FormatPrice(item.Price * item.Quantity)</div>
+                    </div>
+                </div>
+            }
+            <div class="aom-total-row">
+                <span class="aom-total-label">Tổng giá trị thanh toán</span>
+                <span class="aom-total-price">@FormatHelper.FormatPrice(Model.Total)</span>
+            </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:16px">
+            <div class="admin-modal-inner-title">Thông tin khách hàng</div>
+            <div class="aom-customer-info">
+                <div class="aom-customer-field"><p>Họ và tên</p><p>@Model.Name</p></div>
+                <div class="aom-customer-field"><p>Số điện thoại</p><p style="font-family:monospace">@Model.Phone</p></div>
+                <div class="aom-customer-field"><p>Địa chỉ giao hàng</p><p style="font-style:italic">@Model.Address</p></div>
+            </div>
+            <div style="margin-top:16px;display:flex;flex-direction:column;gap:12px">
+                <form asp-action="UpdateStatus" method="post">
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <select name="status" class="aom-status-select" onchange="this.form.submit()">
+                        <option value="pending" selected="@(Model.Status == "pending")">Chờ xác nhận (Pending)</option>
+                        <option value="processing" selected="@(Model.Status == "processing")">Xác nhận duyệt (Approve)</option>
+                        <option value="shipped" selected="@(Model.Status == "shipped")">Bắt đầu giao (Shipped)</option>
+                        <option value="delivered" selected="@(Model.Status == "delivered")">Giao thành công (Delivered)</option>
+                        <option value="cancelled" selected="@(Model.Status == "cancelled")">Hủy vận đơn (Cancel)</option>
+                    </select>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

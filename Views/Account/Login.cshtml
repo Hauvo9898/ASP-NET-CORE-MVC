@@ -1,0 +1,98 @@
+@model LoginViewModel
+@{
+    ViewData["Title"] = "Đăng nhập";
+    bool isAdminMode = Model.Mode == "admin";
+}
+
+<div class="auth-container">
+    <div class="auth-header">
+        <div class="auth-tabs">
+            <button type="button" class="auth-tab-btn @(!isAdminMode ? "active" : "")" id="tab-customer" onclick="switchAuthMode('customer')">Dành cho Khách hàng</button>
+            <button type="button" class="auth-tab-btn @(isAdminMode ? "active" : "")" id="tab-admin" onclick="switchAuthMode('admin')">Cổng Quản trị</button>
+        </div>
+        <h1 class="auth-title" id="auth-title">@(isAdminMode ? "Cổng Quản trị" : "Đăng nhập Khách hàng")</h1>
+        <p class="auth-subtitle" id="auth-subtitle">@(isAdminMode ? "Dành riêng cho quản trị viên hệ thống" : "Nhập thông tin của bạn để truy cập tài khoản")</p>
+    </div>
+
+    <!-- Customer form -->
+    <form class="auth-form @(!isAdminMode ? "active" : "")" id="auth-form-customer" asp-controller="Account" asp-action="Login" method="post">
+        <input type="hidden" name="Mode" value="customer" />
+        <input type="hidden" name="ReturnUrl" value="@Model.ReturnUrl" />
+        <div class="auth-notice" id="auth-notice-customer">
+            <div class="auth-notice-header">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                <span class="auth-notice-title">Xác thực Hội viên</span>
+            </div>
+            <p class="auth-notice-sub">Truy cập vào không gian mua sắm riêng tư.</p>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Tên tài khoản</label>
+            <div class="form-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <input name="Username" class="luxury-input with-icon" placeholder="Nhập tên tài khoản..." value="@(!isAdminMode ? Model.Username : "")" />
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Mật khẩu</label>
+            <div class="input-container">
+                <div class="form-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    </svg>
+                </div>
+                <input type="password" name="Password" class="luxury-input with-icon" placeholder="Nhập mật khẩu..." />
+            </div>
+        </div>
+
+        @if (!isAdminMode && !ViewData.ModelState.IsValid)
+        {
+            <p class="auth-error">@Html.ValidationSummary(false, "", new { @class = "" })</p>
+        }
+
+        <button class="auth-submit" type="submit">Xác nhận Đăng nhập</button>
+
+        <div class="auth-switch">
+            <span>Chưa có tài khoản? </span>
+            <a class="auth-switch-btn" asp-action="Register" style="text-decoration:underline;cursor:pointer">Đăng ký ngay</a>
+        </div>
+    </form>
+
+    <!-- Admin form -->
+    <form class="auth-form @(isAdminMode ? "active" : "")" id="auth-form-admin" asp-controller="Account" asp-action="Login" method="post">
+        <input type="hidden" name="Mode" value="admin" />
+        <div class="auth-notice gold-border">
+            <div class="auth-notice-header">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                <span class="auth-notice-title">Xác thực Quản trị viên</span>
+            </div>
+            <p class="auth-notice-sub">Hệ thống nội bộ - Vui lòng không chia sẻ tài khoản.</p>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Tên đăng nhập</label>
+            <div class="form-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <input name="Username" class="luxury-input with-icon" value="@(isAdminMode ? Model.Username : "")" />
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Mật mã truy cập</label>
+            <div class="form-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </div>
+            <input type="password" name="Password" class="luxury-input with-icon" />
+        </div>
+
+        @if (isAdminMode && !ViewData.ModelState.IsValid)
+        {
+            <p class="auth-error">@Html.ValidationSummary(false, "", new { @class = "" })</p>
+        }
+
+        <button class="auth-submit" type="submit">Xác minh truy cập</button>
+
+        <button class="auth-back-btn" type="button" onclick="switchAuthMode('customer')">Quay lại đăng nhập Khách hàng</button>
+    </form>
+</div>

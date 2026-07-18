@@ -1,0 +1,128 @@
+@model List<Order>
+@{
+    ViewData["Title"] = "Lịch sử đơn hàng";
+    string currentFilter = ViewBag.CurrentFilter ?? "all";
+    string currentQuery = ViewBag.CurrentQuery ?? "";
+    var totalValue = Model.Sum(o => o.Total);
+}
+
+<div class="max-w-6xl" style="padding:0 16px">
+    <div class="oh-header">
+        <a class="oh-back-link" asp-controller="Home" asp-action="Index">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            Quay về trang chủ
+        </a>
+        <div style="display:flex;flex-direction:column;gap:16px;margin-bottom:32px">
+            <div style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:32px">
+                <div>
+                    <h1 class="oh-title">Lịch sử giao dịch</h1>
+                    <div class="oh-subtitle">
+                        <div class="oh-subtitle-line"></div>
+                        <p class="oh-subtitle-text">Archive &amp; Style Legacy</p>
+                    </div>
+                </div>
+                <div class="oh-filter-row">
+                    <a class="oh-filter-btn @(currentFilter == "all" ? "active" : "")" asp-action="History" asp-route-filter="all" asp-route-q="@currentQuery">Tất cả</a>
+                    <a class="oh-filter-btn @(currentFilter == "processing" ? "active" : "")" asp-action="History" asp-route-filter="processing" asp-route-q="@currentQuery">Đang thực thi</a>
+                    <a class="oh-filter-btn @(currentFilter == "shipped" ? "active" : "")" asp-action="History" asp-route-filter="shipped" asp-route-q="@currentQuery">Đang luân chuyển</a>
+                    <a class="oh-filter-btn @(currentFilter == "delivered" ? "active" : "")" asp-action="History" asp-route-filter="delivered" asp-route-q="@currentQuery">Đã hoàn tất</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr;gap:32px;margin-bottom:64px" class="oh-search-stats-row">
+        <form style="position:relative" method="get" asp-action="History">
+            <input type="hidden" name="filter" value="@currentFilter" />
+            <span class="oh-search-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            </span>
+            <input type="text" name="q" class="oh-search" value="@currentQuery" placeholder="Tìm kiếm mã giao dịch hoặc tên tác phẩm..." />
+        </form>
+        <div class="oh-stats">
+            <div class="oh-stat-box dark">
+                <span class="oh-stat-label">Tổng Volume</span>
+                <span class="oh-stat-value">@Model.Count</span>
+            </div>
+            <div class="oh-stat-box light">
+                <span class="oh-stat-label">Giá trị tích lũy</span>
+                <span class="oh-stat-value">@FormatHelper.FormatPrice(totalValue)</span>
+            </div>
+        </div>
+    </div>
+
+    @if (Model.Count == 0)
+    {
+        <div class="oh-empty">
+            <div class="oh-empty-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#e5e7eb" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+            </div>
+            <h3 class="oh-empty-title">Lịch sử trống</h3>
+            <p class="oh-empty-desc">@(string.IsNullOrEmpty(currentQuery) ? "Bạn chưa có bất kỳ giao dịch nào được lưu lại trong hệ thống." : "Chúng tôi không tìm thấy kết quả nào trùng khớp.")</p>
+            <a class="luxury-button" asp-action="History">Quay lại lịch sử giao dịch</a>
+        </div>
+    }
+    else
+    {
+        <div id="oh-orders-list">
+            @foreach (var order in Model)
+            {
+                var previews = order.OrderDetails.Take(3).ToList();
+                var extra = order.OrderDetails.Count - 3;
+                <div class="oh-order-card">
+                    <div class="oh-card-inner">
+                        <div class="oh-card-left">
+                            <div>
+                                <span class="order-status-badge @FormatHelper.StatusBadgeClass(order.Status)">@FormatHelper.StatusLabel(order.Status)</span>
+                                <div class="oh-card-order-id">#@order.Id.ToString("D6")</div>
+                                <div class="oh-product-previews" style="margin-top:16px">
+                                    @foreach (var item in previews)
+                                    {
+                                        <div class="oh-product-preview"><img src="@item.Product?.Image" alt="" referrerpolicy="no-referrer" onerror="this.src='https://picsum.photos/seed/fashion/200/300'" /></div>
+                                    }
+                                    @if (extra > 0)
+                                    {
+                                        <div class="oh-product-preview more-count">+@extra</div>
+                                    }
+                                </div>
+                            </div>
+                            <div>
+                                <div class="oh-card-price-label">Giá trị giao dịch</div>
+                                <div class="oh-card-price">@FormatHelper.FormatPrice(order.Total)</div>
+                            </div>
+                        </div>
+                        <div class="oh-card-right">
+                            <div class="oh-card-details">
+                                <div>
+                                    <div class="oh-card-detail-label">Điểm đến của bạn</div>
+                                    <p class="oh-card-addr">"@order.Address"</p>
+                                </div>
+                                <div>
+                                    <div class="oh-card-date-label" style="text-align:right">Thời gian ghi nhận</div>
+                                    <div class="oh-card-date">@order.Date.ToString("dd/MM/yyyy")</div>
+                                    <div class="oh-card-date-system">Hệ thống AHU Heritage Analytics</div>
+                                </div>
+                            </div>
+                            <div class="oh-card-actions">
+                                <div style="display:flex;align-items:center;gap:24px">
+                                    <a class="oh-detail-btn" asp-action="Details" asp-route-id="@order.Id">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                                        Chi tiết vận đơn
+                                    </a>
+                                </div>
+                                <div style="display:flex;align-items:center;gap:12px">
+                                    <form asp-action="Repurchase" asp-route-id="@order.Id" method="post">
+                                        <button class="oh-repurchase-btn" title="Mua lại đơn hàng" type="submit">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                                        </button>
+                                    </form>
+                                    <a class="oh-view-btn" asp-action="Details" asp-route-id="@order.Id">Xem lịch trình</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

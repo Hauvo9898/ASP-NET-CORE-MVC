@@ -1,0 +1,94 @@
+@model Order
+@{
+    ViewData["Title"] = "Chi tiết đơn hàng #" + Model.Id.ToString("D6");
+    bool isAdmin = User.IsInRole("admin");
+}
+
+<div class="max-w-6xl" style="padding:40px 16px">
+    <a class="oh-back-link" asp-action="History">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        Quay lại lịch sử đơn hàng
+    </a>
+
+    <div class="odm-box" style="position:static;max-height:none">
+        <div class="odm-header">
+            <div>
+                <h3 class="odm-title">Chi tiết Giao dịch</h3>
+                <div style="display:flex;align-items:center;gap:12px">
+                    <span class="odm-id">#@Model.Id.ToString("D6")</span>
+                    <span class="order-status-badge @FormatHelper.StatusBadgeClass(Model.Status)">@FormatHelper.StatusLabel(Model.Status)</span>
+                </div>
+            </div>
+        </div>
+        <div class="odm-body">
+            <div class="odm-info-grid">
+                <div>
+                    <div class="odm-info-label">Thông tin Nhận hàng</div>
+                    <div class="odm-info-row" style="margin-bottom:12px">
+                        <span class="odm-info-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+                        <div><div class="odm-info-name">@Model.Name</div><div class="odm-info-sub">Hội viên AHU Haute Couture</div></div>
+                    </div>
+                    <div class="odm-info-row">
+                        <span class="odm-info-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.08 6.08l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span>
+                        <div class="odm-info-name">@Model.Phone</div>
+                    </div>
+                </div>
+                <div>
+                    <div class="odm-info-label">Đường đi của phong cách</div>
+                    <div class="odm-info-row">
+                        <span class="odm-info-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
+                        <div class="odm-info-name" style="font-style:italic">@Model.Address</div>
+                    </div>
+                </div>
+            </div>
+            <section>
+                <div class="odm-products-label">Bản kê tác phẩm (@Model.OrderDetails.Count)</div>
+                @foreach (var item in Model.OrderDetails)
+                {
+                    <div class="odm-product-row">
+                        <div class="odm-product-img">
+                            <img src="@item.Product?.Image" alt="@item.Product?.Name" referrerpolicy="no-referrer" />
+                        </div>
+                        <div class="odm-product-info">
+                            <div>
+                                <div class="odm-product-name">@item.Product?.Name</div>
+                            </div>
+                            <div>
+                                <div style="display:flex;justify-content:space-between;align-items:flex-end">
+                                    <div>
+                                        <div class="odm-product-qty">Số lượng: @item.Quantity</div>
+                                        <div class="odm-product-unit-price">@FormatHelper.FormatPrice(item.Price)</div>
+                                    </div>
+                                    <div class="odm-product-total">@FormatHelper.FormatPrice(item.Price * item.Quantity)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </section>
+            <section class="odm-totals">
+                <div class="odm-total-line"><span>Giá trị hàng hóa</span><span>@FormatHelper.FormatPrice(Model.Total)</span></div>
+                <div class="odm-total-line"><span>Bảo hiểm &amp; Logistics</span><span class="odm-complimentary">COMPLIMENTARY</span></div>
+                <div class="odm-grand-total">
+                    <div><div class="odm-grand-label">Tổng giá trị định danh</div><div class="odm-grand-sub">Thuế VAT đã được khấu trừ bởi AHU</div></div>
+                    <div class="odm-grand-price">@FormatHelper.FormatPrice(Model.Total)</div>
+                </div>
+            </section>
+        </div>
+        <div class="odm-footer">
+            @if (!isAdmin)
+            {
+                <form asp-action="Repurchase" asp-route-id="@Model.Id" method="post">
+                    <button class="odm-repurchase-btn" type="submit">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                        Mua lại toàn bộ
+                    </button>
+                </form>
+            }
+            <button class="odm-print-btn" type="button" onclick="window.print()">
+                In vận đơn điện tử
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="7 17 3 17 3 10 21 10 21 17 17 17"/><polyline points="17 21 7 21 7 17"/><polyline points="17 3 7 3 7 10"/></svg>
+            </button>
+        </div>
+    </div>
+</div>

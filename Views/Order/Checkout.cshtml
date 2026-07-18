@@ -1,0 +1,109 @@
+@model CheckoutViewModel
+@{
+    ViewData["Title"] = "Thông tin giao hàng";
+}
+
+<div class="max-w-7xl" style="padding:0 16px">
+    <div class="cart-header">
+        <h1 class="cart-title">Hoàn tất đơn hàng</h1>
+        <div class="cart-steps">
+            <span class="step" style="cursor:pointer" onclick="location.href='@Url.Action("Index", "Cart")'">01. Giỏ hàng</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+            <span class="step active">02. Thông tin giao hàng</span>
+        </div>
+    </div>
+
+    <form asp-controller="Order" asp-action="Checkout" method="post">
+        <div class="cart-layout">
+            <div class="lg-col-2">
+                <div id="checkout-form-view">
+                    <a class="checkout-back-btn" asp-controller="Cart" asp-action="Index">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                        Quay lại giỏ hàng
+                    </a>
+                    <div class="checkout-section-header">
+                        <div class="checkout-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        </div>
+                        <h3 class="checkout-section-title">Thông tin khách hàng</h3>
+                    </div>
+
+                    <div asp-validation-summary="ModelOnly" class="auth-error" style="display:block"></div>
+
+                    <div class="checkout-grid">
+                        <div class="checkout-input-group">
+                            <label class="checkout-input-label">Họ và tên</label>
+                            <div class="checkout-input-wrap">
+                                <span class="checkout-input-icon">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                </span>
+                                <input asp-for="Name" class="checkout-input" placeholder="VD: Nguyễn Văn A" />
+                            </div>
+                        </div>
+                        <div class="checkout-input-group">
+                            <label class="checkout-input-label">Số điện thoại</label>
+                            <div class="checkout-input-wrap">
+                                <span class="checkout-input-icon">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.08 6.08l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                                </span>
+                                <input asp-for="Phone" type="tel" class="checkout-input" placeholder="VD: 09xx xxx xxx" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="checkout-input-group" style="margin-bottom:24px">
+                        <label class="checkout-input-label">Địa chỉ nhận hàng</label>
+                        <div class="checkout-input-wrap">
+                            <span class="checkout-input-icon">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                            </span>
+                            <input asp-for="Address" class="checkout-input" placeholder="Số nhà, tên đường, phường/xã, quận/huyện..." />
+                        </div>
+                    </div>
+                    <div class="checkout-shipping-info">
+                        <span class="checkout-shipping-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                        </span>
+                        <div>
+                            <p class="checkout-shipping-title">Thông tin vận chuyển</p>
+                            <p class="checkout-shipping-desc">Đơn hàng sẽ được đóng gói thủ công và giao trong vòng 2-3 ngày làm việc.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cart-summary">
+                <h2 class="cart-summary-title">Đơn hàng của bạn</h2>
+                <div class="cart-summary-lines">
+                    @foreach (var item in Model.Items)
+                    {
+                        <div class="cart-summary-line">
+                            <span style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">@item.Name x@item.Quantity</span>
+                            <span>@FormatHelper.FormatPrice(item.Price * item.Quantity)</span>
+                        </div>
+                    }
+                </div>
+                <div class="cart-summary-divider"></div>
+                <div class="cart-summary-lines">
+                    <div class="cart-summary-line"><span>Tạm tính</span><span>@FormatHelper.FormatPrice(Model.Total)</span></div>
+                    <div class="cart-summary-line"><span>Vận chuyển</span><span class="free-ship">MIỄN PHÍ</span></div>
+                    <div class="cart-summary-line total"><span style="font-size:12px;align-self:center">Tổng cộng</span><span>@FormatHelper.FormatPrice(Model.Total)</span></div>
+                </div>
+                <button class="cart-checkout-btn" type="submit">
+                    <span>XÁC NHẬN ĐƠN HÀNG</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                </button>
+                <div class="cart-icons-row">
+                    <div class="cart-icon-item">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                        <span>Security</span>
+                    </div>
+                    <div class="cart-icon-divider"></div>
+                    <div class="cart-icon-item">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                        <span>Express</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

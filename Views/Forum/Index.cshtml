@@ -1,0 +1,62 @@
+@model List<ForumPost>
+@{
+    ViewData["Title"] = "Diễn đàn";
+    var pinned = Model.Where(p => p.IsPinned).ToList();
+    var regular = Model.Where(p => !p.IsPinned).ToList();
+    bool isAuthenticated = User.Identity?.IsAuthenticated == true;
+}
+
+<div class="max-w-7xl" style="padding:56px 16px 80px">
+    <div class="journal-masthead" style="margin-bottom:32px">
+        <p class="journal-eyebrow-brand">— AHU —</p>
+        <h1 class="journal-masthead-title">Diễn đàn</h1>
+        <p class="journal-masthead-sub">Nơi cộng đồng AHU chia sẻ phong cách, outfit và góc nhìn thời trang.</p>
+    </div>
+
+    <div class="forum-header">
+        <p style="font-size:12px; color:#9ca3af">@Model.Count bài viết đã duyệt</p>
+        @if (isAuthenticated)
+        {
+            <a class="luxury-button" asp-action="Create">Đăng bài mới</a>
+        }
+        else
+        {
+            <a class="luxury-button" asp-controller="Account" asp-action="Login">Đăng nhập để đăng bài</a>
+        }
+    </div>
+
+    @if (Model.Count == 0)
+    {
+        <div class="oh-empty">
+            <div class="oh-empty-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#e5e7eb" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            </div>
+            <h3 class="oh-empty-title">Chưa có bài viết nào</h3>
+            <p class="oh-empty-desc">Hãy là người đầu tiên chia sẻ phong cách của bạn với cộng đồng AHU.</p>
+        </div>
+    }
+    else
+    {
+        @if (pinned.Count > 0)
+        {
+            <div class="forum-pinned-label">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"/></svg>
+                Bài viết được ghim
+            </div>
+            <div class="forum-grid" style="margin-bottom:16px">
+                @foreach (var p in pinned)
+                {
+                    @await Html.PartialAsync("_ForumCard", p)
+                }
+            </div>
+            <div class="forum-section-divider"><span>Bài viết mới</span><div class="journal-hr"></div></div>
+        }
+
+        <div class="forum-grid">
+            @foreach (var p in regular)
+            {
+                @await Html.PartialAsync("_ForumCard", p)
+            }
+        </div>
+    }
+</div>

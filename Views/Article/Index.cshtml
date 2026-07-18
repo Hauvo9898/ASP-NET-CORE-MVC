@@ -1,0 +1,86 @@
+@model List<Article>
+@{
+    ViewData["Title"] = "Tin tức";
+    string currentCategory = ViewBag.CurrentCategory ?? "all";
+    var categories = Model.Select(a => a.Category).Where(c => !string.IsNullOrEmpty(c)).Distinct().ToList();
+    var lead = Model.FirstOrDefault();
+    var rest = Model.Skip(1).ToList();
+}
+
+<div class="max-w-7xl" style="padding:56px 16px 0">
+    <div class="journal-masthead">
+        <p class="journal-eyebrow-brand">— AHU —</p>
+        <h1 class="journal-masthead-title">Journal</h1>
+        <p class="journal-masthead-sub">Câu chuyện phía sau từng bộ sưu tập, góc nhìn phong cách và những điều đáng chú ý từ AHU.</p>
+    </div>
+
+    @if (categories.Count > 0)
+    {
+        <div class="journal-filters">
+            <div class="category-filters">
+                <a class="cat-filter-btn @(currentCategory == "all" ? "active" : "")" asp-action="Index" asp-route-category="all">Tất cả</a>
+                @foreach (var cat in categories)
+                {
+                    <a class="cat-filter-btn @(currentCategory == cat ? "active" : "")" asp-action="Index" asp-route-category="@cat">@cat</a>
+                }
+            </div>
+        </div>
+    }
+
+    @if (lead == null)
+    {
+        <div class="journal-empty">
+            <p>Chưa có bài viết nào trong chuyên mục này.</p>
+        </div>
+    }
+    else
+    {
+        <a class="journal-lead" href="@Url.Action("Details", new { id = lead.Id })">
+            <div class="journal-lead-img-wrap">
+                <img src="@lead.Image" alt="@lead.Title" referrerpolicy="no-referrer" onerror="this.src='https://picsum.photos/seed/journal/1200/800'" />
+            </div>
+            <div class="journal-lead-panel">
+                @if (!string.IsNullOrEmpty(lead.Category))
+                {
+                    <span class="journal-eyebrow">@lead.Category</span>
+                }
+                <h2 class="journal-lead-title">@lead.Title</h2>
+                <p class="journal-lead-excerpt">@FormatHelper.Excerpt(lead.Content, 180)</p>
+                <span class="journal-read-more">
+                    Đọc tiếp
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                </span>
+            </div>
+        </a>
+
+        @if (rest.Count > 0)
+        {
+            <div class="journal-section-label">
+                <span>Bài viết khác</span>
+                <div class="journal-hr"></div>
+            </div>
+            <div class="journal-list">
+                @foreach (var a in rest)
+                {
+                    <a class="journal-list-row" href="@Url.Action("Details", new { id = a.Id })">
+                        <div class="journal-list-img-wrap">
+                            <img src="@a.Image" alt="@a.Title" referrerpolicy="no-referrer" onerror="this.src='https://picsum.photos/seed/journal/400/400'" loading="lazy" />
+                        </div>
+                        <div class="journal-list-content">
+                            @if (!string.IsNullOrEmpty(a.Category))
+                            {
+                                <span class="journal-eyebrow">@a.Category</span>
+                            }
+                            <h3 class="journal-list-title">@a.Title</h3>
+                            <p class="journal-list-excerpt">@FormatHelper.Excerpt(a.Content, 140)</p>
+                            <span class="journal-read-more">
+                                Đọc tiếp
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                            </span>
+                        </div>
+                    </a>
+                }
+            </div>
+        }
+    }
+</div>

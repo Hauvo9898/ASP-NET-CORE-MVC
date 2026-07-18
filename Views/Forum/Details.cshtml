@@ -1,0 +1,142 @@
+@model ForumPost
+@{
+    ViewData["Title"] = "Bài viết diễn đàn";
+    var authorName = Model.User?.FullName ?? Model.User?.Username ?? "Người dùng AHU";
+    var initial = authorName.Length > 0 ? authorName[0].ToString().ToUpper() : "?";
+    var comments = Model.Comments.OrderBy(c => c.CreatedAt).ToList();
+}
+
+<div class="max-w-7xl" style="padding:40px 16px 80px">
+    <a class="oh-back-link" asp-action="Index">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        Quay lại diễn đàn
+    </a>
+
+    @if (Model.Status != "approved")
+    {
+        <div class="checkout-shipping-info" style="margin-bottom:24px; max-width:720px; margin-left:auto; margin-right:auto">
+            <span class="checkout-shipping-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            </span>
+            <div>
+                <p class="checkout-shipping-title">Xem trước — @FormatHelper.ForumStatusLabel(Model.Status)</p>
+                <p class="checkout-shipping-desc">Bài viết này chưa hiển thị công khai trên diễn đàn. Chỉ bạn (và Admin) xem được ở đường dẫn này.</p>
+            </div>
+        </div>
+    }
+
+    <div class="forum-detail-box">
+        <div class="forum-detail-header">
+            <div class="acm-avatar">@initial</div>
+            <div>
+                <div class="forum-author-name">@authorName</div>
+                <div class="forum-author-date">@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</div>
+            </div>
+            @if (Model.IsPinned)
+            {
+                <span class="order-status-badge" style="color:var(--luxury-gold-antique);background:#faf8f4;border-color:#e9dcc0;margin-left:auto">Đã ghim</span>
+            }
+        </div>
+
+        @if (Model.Images.Count > 0)
+        {
+            <div class="forum-detail-images">
+                @foreach (var img in Model.Images)
+                {
+                    <img src="@img.ImagePath" alt="" referrerpolicy="no-referrer" />
+                }
+            </div>
+        }
+
+        <p class="forum-detail-content">@Model.Content</p>
+
+@{
+    string[] reactionTypes = { "like", "love", "haha", "sad", "angry" };
+    var countByType = Model.Reactions.GroupBy(r => r.ReactionType).ToDictionary(g => g.Key, g => g.Count());
+    string? myReaction = ViewBag.MyReaction as string;
+    bool canInteract = User.Identity?.IsAuthenticated == true;
+    int totalReactions = Model.Reactions.Count;
+    var topTypesInit = countByType.OrderByDescending(kv => kv.Value).Select(kv => kv.Key).Take(3).ToList();
+}
+        <div class="forum-reaction-bar">
+            @if (canInteract)
+            {
+                <div class="fb-reaction-widget" id="fb-widget-@Model.Id">
+                    <button type="button" class="fb-main-btn @(myReaction != null ? "reacted" : "")" id="fb-main-btn-@Model.Id" onclick="fbPickReaction(@Model.Id, '@(myReaction ?? "like")')">
+                        <span class="fb-main-icon" id="fb-main-icon-@Model.Id">@FormatHelper.ForumReactionEmoji(myReaction ?? "like")</span>
+                        <span id="fb-main-label-@Model.Id">@(myReaction != null ? FormatHelper.ForumReactionLabel(myReaction) : "Thích")</span>
+                    </button>
+                    <div class="fb-reaction-tray" id="fb-tray-@Model.Id">
+                        @foreach (var type in reactionTypes)
+                        {
+                            <button type="button" class="fb-tray-emoji @(myReaction == type ? "mine" : "")" data-type="@type" title="@FormatHelper.ForumReactionLabel(type)" onclick="fbPickReaction(@Model.Id, '@type')">@FormatHelper.ForumReactionEmoji(type)</button>
+                        }
+                    </div>
+                </div>
+            }
+            else
+            {
+                <a asp-controller="Account" asp-action="Login" class="fb-main-btn">
+                    <span class="fb-main-icon">👍</span> Đăng nhập để thả cảm xúc
+                </a>
+            }
+
+            <div class="fb-reaction-summary" id="fb-summary-@Model.Id">
+                @if (totalReactions > 0)
+                {
+                    <span class="emoji-stack">@foreach (var t in topTypesInit) { @FormatHelper.ForumReactionEmoji(t) }</span>
+                    <span id="fb-total-@Model.Id">@totalReactions</span>
+                }
+                else
+                {
+                    <span id="fb-total-@Model.Id" style="display:none">0</span>
+                }
+            </div>
+        </div>
+
+        <div class="forum-comments-section">
+            <div class="odm-info-label" style="margin-bottom:16px">Bình luận (@comments.Count)</div>
+            @if (comments.Count == 0)
+            {
+                <p style="font-size:13px; color:#9ca3af; font-style:italic">Chưa có bình luận nào.</p>
+            }
+            else
+            {
+                @foreach (var c in comments)
+                {
+                    var cName = c.User?.FullName ?? c.User?.Username ?? "Người dùng AHU";
+                    var isAdminComment = c.User?.Role == "admin";
+                    <div class="forum-comment-row">
+                        <div class="acm-avatar" style="width:32px;height:32px;font-size:11px">@(cName.Length > 0 ? cName[0].ToString().ToUpper() : "?")</div>
+                        <div class="forum-comment-body">
+                            <div class="forum-comment-header">
+                                <span class="forum-comment-name">@cName</span>
+                                @if (isAdminComment)
+                                {
+                                    <span class="user-role-admin" style="padding:2px 8px">AHU</span>
+                                }
+                                <span class="forum-comment-date">@c.CreatedAt.ToString("dd/MM/yyyy HH:mm")</span>
+                            </div>
+                            <p class="forum-comment-text">@c.Content</p>
+                        </div>
+                    </div>
+                }
+            }
+
+            @if (canInteract)
+            {
+                <form asp-action="Comment" method="post" style="margin-top:20px; display:flex; gap:12px; align-items:flex-start">
+                    <input type="hidden" name="postId" value="@Model.Id" />
+                    <textarea name="content" class="contact-textarea" rows="2" placeholder="Viết bình luận..." required style="flex:1; margin-bottom:0"></textarea>
+                    <button class="chat-send-btn" type="submit" style="flex-shrink:0">Gửi</button>
+                </form>
+            }
+            else
+            {
+                <p style="font-size:13px; color:#9ca3af; margin-top:16px">
+                    <a asp-controller="Account" asp-action="Login" style="text-decoration:underline; color:var(--luxury-gold-antique)">Đăng nhập</a> để tham gia bình luận.
+                </p>
+            }
+        </div>
+    </div>
+</div>

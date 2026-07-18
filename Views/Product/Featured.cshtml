@@ -1,0 +1,23 @@
+@model ProductListViewModel
+@{
+    ViewData["Title"] = "Sản phẩm nổi bật";
+}
+
+<div class="max-w-7xl" style="padding:160px 16px 96px">
+    <div class="products-header">
+        <div>
+            <h1 class="products-title">Sản phẩm nổi bật</h1>
+            <div class="gold-divider" style="margin:0"></div>
+        </div>
+        <div class="category-filters">
+            <a class="cat-filter-btn @(Model.CurrentType == "all" ? "active" : "")" asp-action="Featured" asp-route-type="all">Tất cả</a>
+            <a class="cat-filter-btn @(Model.CurrentType == "quần áo" ? "active" : "")" asp-action="Featured" asp-route-type="quần áo">Quần áo</a>
+            <a class="cat-filter-btn @(Model.CurrentType == "phụ kiện" ? "active" : "")" asp-action="Featured" asp-route-type="phụ kiện">Phụ kiện</a>
+            <a class="cat-filter-btn @(Model.CurrentType == "giày dép" ? "active" : "")" asp-action="Featured" asp-route-type="giày dép">Giày dép</a>
+        </div>
+    </div>
+
+    @await Html.PartialAsync("_ProductGridSection", Model)
+</div>
+
+@await Html.PartialAsync("_QuickViewModal")

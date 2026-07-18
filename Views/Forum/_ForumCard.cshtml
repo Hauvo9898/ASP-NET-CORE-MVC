@@ -1,0 +1,41 @@
+@model ForumPost
+@{
+    var authorName = Model.User?.FullName ?? Model.User?.Username ?? "Người dùng AHU";
+    var initial = authorName.Length > 0 ? authorName[0].ToString().ToUpper() : "?";
+    var firstImage = Model.Images.FirstOrDefault();
+}
+<a class="forum-card @(Model.IsPinned ? "pinned" : "")" href="@Url.Action("Details", new { id = Model.Id })" style="text-decoration:none">
+    @if (firstImage != null)
+    {
+        <div class="forum-card-image-wrap">
+            <img src="@firstImage.ImagePath" alt="" referrerpolicy="no-referrer" loading="lazy" />
+            @if (Model.IsPinned)
+            {
+                <span class="forum-pin-badge">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"/></svg>
+                    Ghim
+                </span>
+            }
+        </div>
+    }
+    <div class="forum-card-body">
+        <div class="forum-author-row">
+            <div class="acm-avatar" style="width:32px;height:32px;font-size:12px">@initial</div>
+            <div>
+                <div class="forum-author-name">@authorName</div>
+                <div class="forum-author-date">@Model.CreatedAt.ToString("dd/MM/yyyy")</div>
+            </div>
+        </div>
+        <p class="forum-card-content">@Model.Content</p>
+        <div class="forum-card-stats">
+            <span>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>
+                @Model.Reactions.Count
+            </span>
+            <span>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                @Model.Comments.Count
+            </span>
+        </div>
+    </div>
+</a>

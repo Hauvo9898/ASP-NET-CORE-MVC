@@ -1,0 +1,55 @@
+@model Staff
+@{
+    ViewData["Title"] = Model.Id == 0 ? "Thêm nhân viên" : "Sửa nhân viên";
+}
+
+<div class="admin-tab-header">
+    <h2 style="font-family:var(--font-serif);font-size:1.3rem">@ViewData["Title"]</h2>
+    <a class="admin-add-btn" asp-action="Index" style="background:transparent;color:#1A1A1A;border:1px solid #e5e7eb">Quay lại danh sách</a>
+</div>
+
+<div class="admin-section-card">
+    <form asp-action="@(Model.Id == 0 ? "Create" : "Edit")" asp-route-id="@Model.Id" method="post" enctype="multipart/form-data">
+        <div asp-validation-summary="ModelOnly" class="auth-error" style="display:block;margin-bottom:16px"></div>
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="Image" />
+        <div class="checkout-input-group" style="margin-bottom:24px">
+            <label class="checkout-input-label">Ảnh nhân viên</label>
+            <input name="imageFile" type="file" accept="image/*" class="checkout-input" />
+            @if (!string.IsNullOrEmpty(Model.Image))
+            {
+                <img src="@Model.Image" alt="preview" style="width:80px;height:80px;object-fit:cover;border-radius:50%;margin-top:8px;border:1px solid #eee" />
+            }
+        </div>
+        <div class="checkout-grid">
+            <div class="checkout-input-group">
+                <label class="checkout-input-label">Họ và tên</label>
+                <input asp-for="Name" class="checkout-input" />
+            </div>
+            <div class="checkout-input-group">
+                <label class="checkout-input-label">Số điện thoại</label>
+                <input asp-for="Phone" class="checkout-input" />
+            </div>
+        </div>
+        <div class="checkout-grid">
+            <div class="checkout-input-group">
+                <label class="checkout-input-label">Ca làm việc</label>
+                <select asp-for="Shift" class="checkout-input">
+                    <option value="Sáng">Sáng</option>
+                    <option value="Chiều">Chiều</option>
+                    <option value="Tối">Tối</option>
+                    <option value="Toàn thời gian">Toàn thời gian</option>
+                </select>
+            </div>
+            <div class="checkout-input-group">
+                <label class="checkout-input-label">Vị trí</label>
+                <input asp-for="Position" class="checkout-input" placeholder="VD: Nhân viên bán hàng" />
+            </div>
+        </div>
+        <div class="checkout-input-group" style="margin-bottom:24px">
+            <label class="checkout-input-label">Lương (VND)</label>
+            <input asp-for="Salary" type="number" step="10000" min="0" class="checkout-input" />
+        </div>
+        <button class="admin-add-btn" type="submit">Lưu thông tin</button>
+    </form>
+</div>

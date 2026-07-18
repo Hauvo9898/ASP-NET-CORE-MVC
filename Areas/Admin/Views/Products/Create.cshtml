@@ -1,0 +1,16 @@
+@model ProductFormViewModel
+@{
+    ViewData["Title"] = "Thêm sản phẩm";
+}
+
+<div class="admin-tab-header">
+    <h2 style="font-family:var(--font-serif);font-size:1.3rem">Thêm sản phẩm mới</h2>
+    <a class="admin-add-btn" asp-action="Index" style="background:transparent;color:#1A1A1A;border:1px solid #e5e7eb">Quay lại danh sách</a>
+</div>
+
+<div class="admin-section-card">
+    <form asp-action="Create" method="post" enctype="multipart/form-data">
+        @await Html.PartialAsync("_Form", Model)
+        <button class="admin-add-btn" type="submit">Lưu sản phẩm</button>
+    </form>
+</div>

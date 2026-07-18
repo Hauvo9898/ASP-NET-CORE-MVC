@@ -1,0 +1,155 @@
+@model List<Feedback>
+@{
+    ViewData["Title"] = "Liên hệ & Góp ý";
+    string currentFilter = ViewBag.CurrentFilter ?? "all";
+    string q = ViewBag.CurrentQuery ?? "";
+    var rated = Model.Where(f => f.Rating.HasValue && f.Rating > 0).ToList();
+    string avg = rated.Count > 0 ? rated.Average(f => f.Rating!.Value).ToString("0.0") : "—";
+    var today = DateTime.Today;
+    int todayCount = Model.Count(f => f.Date.Date == today);
+    var topicLabels = new Dictionary<string, string> { ["gop-y"] = "Góp ý", ["ho-tro"] = "Hỗ trợ đơn hàng", ["hop-tac"] = "Hợp tác", ["khac"] = "Khác" };
+    var topTopic = Model.Where(f => f.Topic != null).GroupBy(f => f.Topic).OrderByDescending(g => g.Count()).FirstOrDefault();
+    int unrepliedCount = Model.Count(f => !f.Messages.Any(m => m.SenderRole == "admin"));
+}
+
+<div class="acm-stats-row">
+    <div class="acm-stat-card">
+        <div class="acm-stat-label">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#D4AF37" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            Tổng tin nhắn
+        </div>
+        <div class="acm-stat-val">@Model.Count</div>
+    </div>
+    <div class="acm-stat-card">
+        <div class="acm-stat-label">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#D4AF37" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            Đánh giá TB
+        </div>
+        <div class="acm-stat-val gold">@avg@(avg != "—" ? " ★" : "")</div>
+    </div>
+    <div class="acm-stat-card">
+        <div class="acm-stat-label">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#D4AF37" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Hôm nay
+        </div>
+        <div class="acm-stat-val">@todayCount</div>
+    </div>
+    <div class="acm-stat-card">
+        <div class="acm-stat-label">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#D4AF37" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            Chủ đề phổ biến
+        </div>
+        <div class="acm-stat-val" style="font-size:1rem">@(topTopic != null ? topicLabels.GetValueOrDefault(topTopic.Key!, topTopic.Key) : "—")</div>
+    </div>
+</div>
+
+<div class="acm-toolbar">
+    <div class="acm-topic-filters">
+        <a class="acm-filter-btn @(currentFilter == "all" ? "active" : "")" asp-action="Index" asp-route-filter="all" asp-route-q="@q">Tất cả</a>
+        <a class="acm-filter-btn @(currentFilter == "unreplied" ? "active" : "")" asp-action="Index" asp-route-filter="unreplied" asp-route-q="@q">Chưa phản hồi (@unrepliedCount)</a>
+        <a class="acm-filter-btn @(currentFilter == "gop-y" ? "active" : "")" asp-action="Index" asp-route-filter="gop-y" asp-route-q="@q">Góp ý</a>
+        <a class="acm-filter-btn @(currentFilter == "ho-tro" ? "active" : "")" asp-action="Index" asp-route-filter="ho-tro" asp-route-q="@q">Hỗ trợ đơn hàng</a>
+        <a class="acm-filter-btn @(currentFilter == "hop-tac" ? "active" : "")" asp-action="Index" asp-route-filter="hop-tac" asp-route-q="@q">Hợp tác</a>
+        <a class="acm-filter-btn @(currentFilter == "khac" ? "active" : "")" asp-action="Index" asp-route-filter="khac" asp-route-q="@q">Khác</a>
+    </div>
+    <form method="get" asp-action="Index" style="display:flex;align-items:center;gap:8px">
+        <input type="hidden" name="filter" value="@currentFilter" />
+        <input type="text" name="q" class="admin-search" value="@q" placeholder="Tìm kiếm..." onchange="this.form.submit()" />
+    </form>
+    @if (Model.Count > 0)
+    {
+        <form asp-action="ClearAll" method="post" onsubmit="return confirm('Xóa TẤT CẢ tin nhắn?')">
+            <button class="admin-action-btn del" type="submit" title="Xóa tất cả">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+            </button>
+        </form>
+    }
+</div>
+
+@if (Model.Count == 0)
+{
+    <div style="padding:80px;text-align:center;color:#9ca3af;font-style:italic">Chưa có tin nhắn nào trong danh mục này.</div>
+}
+else
+{
+    <div class="acm-cards-grid">
+        @foreach (var s in Model)
+        {
+            var accentCls = "accent-" + (s.Topic ?? "khac");
+            var badgeCls = "topic-" + (s.Topic ?? "khac");
+            <div class="acm-card">
+                <div class="acm-card-accent @accentCls"></div>
+                <div class="acm-card-header">
+                    <div class="acm-card-user">
+                        <div class="acm-avatar">@(s.Name.Length > 0 ? s.Name[0].ToString().ToUpper() : "?")</div>
+                        <div>
+                            <div class="acm-user-name">@s.Name</div>
+                            <div class="acm-user-date">@s.Date.ToString("dd/MM/yyyy HH:mm")</div>
+                        </div>
+                    </div>
+                    <div class="acm-card-header-right">
+                        <form asp-action="Delete" asp-route-id="@s.Id" method="post" onsubmit="return confirm('Xóa tin nhắn này?')">
+                            <button class="acm-delete-btn" title="Xóa tin nhắn này" type="submit">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                            </button>
+                        </form>
+                        <span class="topic-badge @badgeCls">@topicLabels.GetValueOrDefault(s.Topic ?? "khac", "Khác")</span>
+                    </div>
+                </div>
+                <div class="acm-card-body">
+                    <div class="acm-info-row">
+                        <span class="acm-info-icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></span>
+                        <span class="acm-info-val">@s.Email</span>
+                    </div>
+                    <div class="acm-info-row">
+                        <span class="acm-info-icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.08 6.08l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span>
+                        <span class="acm-info-val mono">@(s.Phone ?? "—")</span>
+                    </div>
+                    @if (!string.IsNullOrEmpty(s.OrderRef))
+                    {
+                        <div class="acm-info-row">
+                            <span class="acm-info-icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></span>
+                            <span class="acm-order-tag">@s.OrderRef</span>
+                        </div>
+                    }
+                    <div class="acm-stars">
+                        @if (s.Rating.HasValue && s.Rating > 0)
+                        {
+                            for (int i = 1; i <= 5; i++)
+                            {
+                                <span class="acm-star @(i <= s.Rating ? "on" : "off")">★</span>
+                            }
+                        }
+                        else
+                        {
+                            <span class="acm-rating-text" style="margin-left:0">Chưa đánh giá</span>
+                        }
+                    </div>
+                    <div class="acm-message-block">
+                        <div class="acm-message-label">Nội dung tin nhắn</div>
+                        <div class="acm-message-text">@s.Content</div>
+                    </div>
+
+                    @{
+                        var lastMsg = s.Messages.OrderByDescending(m => m.SentAt).FirstOrDefault();
+                        var hasReplied = s.Messages.Any(m => m.SenderRole == "admin");
+                    }
+                    @if (hasReplied && lastMsg != null)
+                    {
+                        <div style="background:#faf8f4; border-left:3px solid var(--luxury-gold); padding:14px 16px; margin-top:12px">
+                            <div class="acm-message-label" style="color:var(--luxury-gold-antique)">
+                                @(lastMsg.SenderRole == "admin" ? "Tin nhắn gần nhất từ AHU" : "Khách vừa nhắn tiếp") · @lastMsg.SentAt.ToString("dd/MM/yyyy HH:mm")
+                            </div>
+                            <div class="acm-message-text" style="margin-bottom:0">@lastMsg.Content</div>
+                        </div>
+                    }
+
+                    <a class="admin-add-btn" asp-action="Thread" asp-route-id="@s.Id" style="margin-top:12px; display:inline-flex; text-decoration:none">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                        @(hasReplied ? "Mở đoạn chat" : "Trả lời khách hàng")
+                    </a>
+                </div>
+            </div>
+        }
+    </div>
+}

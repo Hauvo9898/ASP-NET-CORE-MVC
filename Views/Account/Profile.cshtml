@@ -1,0 +1,51 @@
+@model User
+@{
+    ViewData["Title"] = "Thông tin tài khoản";
+}
+
+<div class="max-w-6xl" style="padding:40px 16px">
+    <a class="oh-back-link" asp-controller="Home" asp-action="Index">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        Quay về trang chủ
+    </a>
+
+    <div class="odm-box" style="position:static;max-height:none;max-width:640px;margin:0 auto">
+        <div class="odm-header">
+            <div>
+                <h3 class="odm-title">Thông tin tài khoản</h3>
+                <span class="odm-id">@(Model.Role == "admin" ? "Quản trị viên" : "Hội viên AHU")</span>
+            </div>
+        </div>
+        <div class="odm-body">
+            <div>
+                <div class="odm-info-label">Chi tiết hội viên</div>
+                <div class="odm-info-row" style="margin-bottom:16px">
+                    <span class="odm-info-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+                    <div><div class="odm-info-name">@(Model.FullName ?? Model.Username)</div><div class="odm-info-sub">Họ và tên</div></div>
+                </div>
+                <div class="odm-info-row" style="margin-bottom:16px">
+                    <span class="odm-info-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>
+                    <div><div class="odm-info-name">@Model.Username</div><div class="odm-info-sub">Tên tài khoản</div></div>
+                </div>
+                <div class="odm-info-row">
+                    <span class="odm-info-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></span>
+                    <div><div class="odm-info-name">@(Model.Email ?? "Chưa cập nhật")</div><div class="odm-info-sub">Email</div></div>
+                </div>
+            </div>
+        </div>
+        <div class="odm-footer">
+            <a class="odm-print-btn" asp-controller="Order" asp-action="History">
+                Xem đơn hàng của tôi
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </a>
+            <a class="odm-print-btn" asp-controller="Contact" asp-action="MyMessages">
+                Tin nhắn của tôi
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            </a>
+            <a class="odm-print-btn" asp-controller="Forum" asp-action="MyPosts">
+                Bài viết của tôi
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            </a>
+        </div>
+    </div>
+</div>

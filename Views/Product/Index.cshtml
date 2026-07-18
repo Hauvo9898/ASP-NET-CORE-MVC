@@ -1,0 +1,59 @@
+@model ProductListViewModel
+@{
+    ViewData["Title"] = "Bộ sưu tập";
+    var categories = new[] { "quần áo", "phụ kiện", "giày dép" };
+}
+
+<div class="max-w-7xl" style="padding:160px 16px 96px;">
+    <div class="products-header">
+        <div>
+            <h1 class="products-title">@(string.IsNullOrWhiteSpace(Model.CurrentQuery) ? "Bộ sưu tập" : $"Kết quả cho \"{Model.CurrentQuery}\"")</h1>
+            <div class="gold-divider" style="margin:0"></div>
+        </div>
+        <div class="category-filters">
+            <a class="cat-filter-btn @(Model.CurrentType == " all" ? "active" : "" )" asp-action="Index" asp-route-type="all">Tất cả</a>
+            <a class="cat-filter-btn @(Model.CurrentType == " quần áo" ? "active" : "" )" asp-action="Index" asp-route-type="quần áo">Quần áo</a>
+            <a class="cat-filter-btn @(Model.CurrentType == " phụ kiện" ? "active" : "" )" asp-action="Index" asp-route-type="phụ kiện">Phụ kiện</a>
+            <a class="cat-filter-btn @(Model.CurrentType == " giày dép" ? "active" : "" )" asp-action="Index" asp-route-type="giày dép">Giày dép</a>
+        </div>
+    </div>
+
+    @if (Model.Grouped)
+    {
+    @* Chế độ mặc định — giữ nguyên y hệt hành vi trước giờ: nhóm theo danh mục, không phân trang *@
+    if (Model.Products.Count == 0)
+    {
+    <div class="products-empty">
+        <p>Không tìm thấy sản phẩm nào trong bộ sưu tập này.</p>
+    </div>
+    }
+    else
+    {
+    foreach (var cat in categories)
+    {
+    var prods = Model.Products.Where(p => p.Type == cat).ToList();
+    if (prods.Count == 0) continue;
+    <div class="category-group">
+        <div class="category-group-header">
+            <h2 class="category-group-title">@cat</h2>
+            <div class="category-group-line"></div>
+            <span class="category-group-count">@prods.Count Sản phẩm</span>
+        </div>
+        <div class="products-grid">
+            @foreach (var p in prods)
+            {
+            @await Html.PartialAsync("_ProductCard", p)
+            }
+        </div>
+    </div>
+    }
+    }
+    }
+    else
+    {
+    @* Đã lọc theo danh mục cụ thể / có tìm kiếm / có chọn sắp xếp — lưới phẳng, có sắp xếp + phân trang *@
+    @await Html.PartialAsync("_ProductGridSection", Model)
+    }
+</div>
+
+@await Html.PartialAsync("_QuickViewModal")

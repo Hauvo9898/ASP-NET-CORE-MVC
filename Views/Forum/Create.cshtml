@@ -1,0 +1,58 @@
+@model ForumPostFormViewModel
+@{
+    ViewData["Title"] = "Đăng bài diễn đàn";
+}
+
+<div class="contact-body max-w-7xl" style="padding-top:56px">
+    <div class="contact-main-row" style="grid-template-columns:1fr; max-width:640px; margin:0 auto">
+        <div class="contact-form-wrap">
+            <div class="contact-form-header">
+                <div class="contact-form-icon-wrap">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                </div>
+                <div>
+                    <h2 class="contact-form-title">Đăng bài mới</h2>
+                    <p class="contact-form-subtitle">Chia sẻ phong cách của bạn với cộng đồng AHU</p>
+                </div>
+            </div>
+
+            <div class="contact-form-body">
+                <form asp-action="Create" method="post" enctype="multipart/form-data">
+                    <div class="contact-field-group" style="margin-bottom:20px">
+                        <label class="contact-field-label">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                            Nội dung <span class="contact-required">*</span>
+                        </label>
+                        <textarea asp-for="Content" class="contact-textarea" rows="6" placeholder="Bạn đang mặc gì hôm nay? Chia sẻ outfit, review hoặc góc nhìn của bạn..." maxlength="2000"></textarea>
+                        <span asp-validation-for="Content" class="auth-error" style="display:block"></span>
+                    </div>
+
+                    <div class="contact-field-group" style="margin-bottom:24px">
+                        <label class="contact-field-label">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                            Hình ảnh (có thể chọn nhiều ảnh)
+                        </label>
+                        <input type="file" name="ImageFiles" accept="image/*" multiple class="contact-input" style="padding:12px 0" />
+                    </div>
+
+                    <div class="checkout-shipping-info" style="margin-bottom:24px">
+                        <span class="checkout-shipping-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                        </span>
+                        <div>
+                            <p class="checkout-shipping-title">Bài viết sẽ được kiểm duyệt</p>
+                            <p class="checkout-shipping-desc">Sau khi gửi, bài viết ở trạng thái "Chờ duyệt" và chỉ hiển thị công khai sau khi Admin AHU duyệt.</p>
+                        </div>
+                    </div>
+
+                    <div asp-validation-summary="ModelOnly" class="contact-error" style="display:block"></div>
+
+                    <button class="contact-submit-btn" type="submit">
+                        <span>Đăng bài</span>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

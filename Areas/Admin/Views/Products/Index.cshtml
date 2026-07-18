@@ -1,0 +1,95 @@
+@model List<Product>
+@{
+    ViewData["Title"] = "Sản phẩm";
+    string q = ViewBag.CurrentQuery ?? "";
+}
+
+<div class="admin-tab-header">
+    <div class="admin-search-wrap">
+        <span class="admin-search-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+        <form method="get" asp-action="Index">
+            <input type="text" name="q" class="admin-search" value="@q" placeholder="Tìm kiếm sản phẩm..." onchange="this.form.submit()" />
+        </form>
+    </div>
+    <a class="admin-add-btn" asp-action="Create">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Thêm sản phẩm
+    </a>
+</div>
+
+<div class="admin-table-wrap">
+    <div style="overflow-x:auto">
+        <table class="admin-table">
+            <thead><tr><th>Sản phẩm</th><th>Giá bán</th><th>Khuyến mãi</th><th>Tồn kho</th><th>Trạng thái</th><th style="text-align:right">Biên tập</th></tr></thead>
+            <tbody>
+                @foreach (var p in Model)
+                {
+                    var stockPct = Math.Min(100, (double)p.Stock / 50 * 100);
+                    var stockClass = p.Stock < 10 ? "stock-low" : "stock-ok";
+                    <tr>
+                        <td>
+                            <div style="display:flex;align-items:center;gap:16px">
+                                <div class="product-thumb-wrap">
+                                    <img class="product-thumb" src="@p.Image" referrerpolicy="no-referrer" onerror="this.src='https://picsum.photos/seed/fashion/200/300'" />
+                                    @if (p.Discount > 0)
+                                    {
+                                        <div class="discount-badge">-@(p.Discount)%</div>
+                                    }
+                                </div>
+                                <div>
+                                    <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px">
+                                        <form asp-action="ToggleFeatured" asp-route-id="@p.Id" method="post" style="display:inline;line-height:0">
+                                            <button type="submit" title="@(p.Featured ? "Bỏ đánh dấu nổi bật" : "Đánh dấu sản phẩm nổi bật")" style="background:none;border:none;cursor:pointer;padding:0">
+                                                <svg width="15" height="15" viewBox="0 0 24 24" fill="@(p.Featured ? "#D4AF37" : "none")" stroke="@(p.Featured ? "#D4AF37" : "#d1d5db")" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                                            </button>
+                                        </form>
+                                        <p style="font-size:14px;font-weight:600;color:#1A1A1A">@p.Name</p>
+                                    </div>
+                                    <p style="font-size:10px;color:#9ca3af;text-transform:uppercase;letter-spacing:0.1em">@p.Type</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div style="font-size:14px;font-weight:700;letter-spacing:0.1em">@FormatHelper.FormatPrice(p.Price)</div>
+                            @if (p.OriginalPrice.HasValue && p.OriginalPrice > p.Price)
+                            {
+                                <div style="font-size:10px;color:#9ca3af;text-decoration:line-through">@FormatHelper.FormatPrice(p.OriginalPrice.Value)</div>
+                            }
+                        </td>
+                        <td>
+                            @if (p.Discount > 0)
+                            {
+                                <span style="font-size:10px;font-weight:700;color:#ef4444;background:#fef2f2;padding:2px 8px;border-radius:99px">Tiết kiệm @(p.Discount)%</span>
+                            }
+                            else
+                            {
+                                <span style="color:#d1d5db;font-size:10px">—</span>
+                            }
+                        </td>
+                        <td>
+                            <div style="font-size:14px;font-weight:500;color:@(p.Stock < 10 ? "#ef4444" : "#1A1A1A")">@p.Stock</div>
+                            <div class="stock-bar-wrap"><div class="stock-bar @stockClass" style="width:@(stockPct)%"></div></div>
+                        </td>
+                        <td>
+                            <form asp-action="ToggleStatus" asp-route-id="@p.Id" method="post">
+                                <button class="status-toggle-btn @(p.IsActive ? "status-active" : "status-inactive")" type="submit">@(p.IsActive ? "Đang hiển thị" : "Đang ẩn")</button>
+                            </form>
+                        </td>
+                        <td style="text-align:right">
+                            <div class="admin-row-actions">
+                                <a class="admin-action-btn edit" asp-action="Edit" asp-route-id="@p.Id"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></a>
+                                <form asp-action="Delete" asp-route-id="@p.Id" method="post" onsubmit="return confirm('Xóa sản phẩm này?')">
+                                    <button class="admin-action-btn del" type="submit"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        @if (Model.Count == 0)
+        {
+            <div style="padding:80px;text-align:center;color:#9ca3af;font-style:italic">Không tìm thấy sản phẩm nào.</div>
+        }
+    </div>
+</div>

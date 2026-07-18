@@ -1,0 +1,68 @@
+@model RegisterViewModel
+@{
+    ViewData["Title"] = "Đăng ký tài khoản";
+}
+
+<div class="auth-container">
+    <div class="auth-header">
+        <h1 class="auth-title">Đăng ký Hội viên</h1>
+        <p class="auth-subtitle">Tạo tài khoản để mua sắm và theo dõi đơn hàng</p>
+    </div>
+
+    <form class="auth-form active" asp-controller="Account" asp-action="Register" method="post">
+        <div class="auth-notice">
+            <div class="auth-notice-header">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+                <span class="auth-notice-title">Tạo tài khoản mới</span>
+            </div>
+            <p class="auth-notice-sub">Chỉ mất chưa đầy một phút.</p>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label bold">Họ và tên</label>
+            <div class="form-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+            </div>
+            <input asp-for="FullName" class="luxury-input with-icon" placeholder="Nhập họ và tên ..." />
+            <span asp-validation-for="FullName" class="auth-error" style="display:block"></span>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Tên tài khoản</label>
+            <div class="form-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <input asp-for="Username" class="luxury-input with-icon" placeholder="Nhập tên tài khoản..." />
+            <span asp-validation-for="Username" class="auth-error" style="display:block"></span>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Mật khẩu</label>
+            <div class="input-container">
+                <div class="form-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                </div>
+                <input asp-for="Password" type="password" class="luxury-input with-icon" placeholder="Nhập mật khẩu..." />
+            </div>
+            <span asp-validation-for="Password" class="auth-error" style="display:block"></span>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Xác nhận mật khẩu</label>
+            <div class="input-container">
+                <div class="form-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                </div>
+                <input asp-for="ConfirmPassword" type="password" class="luxury-input with-icon" placeholder="Nhập lại mật khẩu..." />
+            </div>
+            <span asp-validation-for="ConfirmPassword" class="auth-error" style="display:block"></span>
+        </div>
+
+        <button class="auth-submit" type="submit">Đăng ký tài khoản</button>
+
+        <div class="auth-switch">
+            <span>Đã có tài khoản? </span>
+            <a class="auth-switch-btn" asp-action="Login" style="text-decoration:underline;cursor:pointer">Đăng nhập ngay</a>
+        </div>
+    </form>
+</div>

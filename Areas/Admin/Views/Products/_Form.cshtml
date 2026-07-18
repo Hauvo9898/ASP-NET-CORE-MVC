@@ -1,0 +1,98 @@
+@model ProductFormViewModel
+@{
+    var palette = ((string Name, string Hex)[])ViewBag.ColorPalette;
+    var sizeOptions = (string[])ViewBag.SizeOptions;
+}
+
+<div asp-validation-summary="All" class="auth-error" style="display:block;margin-bottom:16px"></div>
+
+<div class="checkout-grid">
+    <div class="checkout-input-group">
+        <label class="checkout-input-label">Tên sản phẩm</label>
+        <input asp-for="Name" class="checkout-input" placeholder="VD: Áo khoác dạ len cao cấp" />
+    </div>
+    <div class="checkout-input-group">
+        <label class="checkout-input-label">Loại sản phẩm</label>
+        <select asp-for="Type" class="checkout-input">
+            <option value="quần áo">Quần áo</option>
+            <option value="phụ kiện">Phụ kiện</option>
+            <option value="giày dép">Giày dép</option>
+        </select>
+    </div>
+</div>
+
+<div class="checkout-grid">
+    <div class="checkout-input-group">
+        <label class="checkout-input-label">Giá bán (VND)</label>
+        <input asp-for="Price" type="number" step="1000" min="0" class="checkout-input" />
+    </div>
+    <div class="checkout-input-group">
+        <label class="checkout-input-label">Giá gốc (VND, để trống nếu không KM)</label>
+        <input asp-for="OriginalPrice" type="number" step="1000" min="0" class="checkout-input" />
+    </div>
+</div>
+
+<div class="checkout-grid">
+    <div class="checkout-input-group">
+        <label class="checkout-input-label">Khuyến mãi (%)</label>
+        <input asp-for="Discount" type="number" min="0" max="100" class="checkout-input" />
+    </div>
+    <div class="checkout-input-group">
+        <label class="checkout-input-label">Tồn kho</label>
+        <input asp-for="Stock" type="number" min="0" class="checkout-input" />
+    </div>
+</div>
+
+<div class="checkout-input-group" style="margin-bottom:24px">
+    <label class="checkout-input-label">Mô tả sản phẩm</label>
+    <textarea asp-for="Description" class="contact-textarea" rows="3"></textarea>
+</div>
+
+<div class="checkout-input-group" style="margin-bottom:24px">
+    <label class="checkout-input-label">Đường dẫn ảnh (URL)</label>
+    <input asp-for="ImageUrl" class="checkout-input" placeholder="https://..." />
+    <label class="checkout-input-label" style="margin-top:12px">... hoặc tải ảnh lên (sẽ ưu tiên nếu chọn)</label>
+    <input asp-for="ImageFile" type="file" accept="image/*" class="checkout-input" />
+    @if (!string.IsNullOrEmpty(Model.ImageUrl))
+    {
+        <img src="@Model.ImageUrl" alt="preview" style="width:80px;height:100px;object-fit:cover;margin-top:8px;border:1px solid #eee" />
+    }
+</div>
+
+<div style="margin-bottom:24px">
+    <p class="modal-section-label">Kích cỡ</p>
+    <div class="size-btns">
+        @foreach (var s in sizeOptions)
+        {
+            var checkedAttr = Model.SelectedSizes.Contains(s) ? "checked" : "";
+            <label class="size-btn @(Model.SelectedSizes.Contains(s) ? "active" : "")" style="cursor:pointer">
+                <input type="checkbox" name="SelectedSizes" value="@s" @checkedAttr style="display:none" onclick="this.parentElement.classList.toggle('active')" />
+                @s
+            </label>
+        }
+    </div>
+</div>
+
+<div style="margin-bottom:24px">
+    <p class="modal-section-label">Màu sắc</p>
+    <div class="color-btns">
+        @foreach (var c in palette)
+        {
+            var isSelected = Model.SelectedColors.Contains(c.Name);
+            <label class="color-btn @(isSelected ? "active" : "")" style="background:@c.Hex;cursor:pointer" title="@c.Name">
+                <input type="checkbox" name="SelectedColors" value="@c.Name" @(isSelected ? "checked" : "") style="display:none" onclick="this.parentElement.classList.toggle('active')" />
+            </label>
+        }
+    </div>
+</div>
+
+<div style="display:flex;gap:32px;margin-bottom:24px">
+    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px">
+        <input asp-for="IsActive" type="checkbox" style="width:16px;height:16px" />
+        Hiển thị trên cửa hàng
+    </label>
+    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px">
+        <input asp-for="Featured" type="checkbox" style="width:16px;height:16px" />
+        Sản phẩm nổi bật
+    </label>
+</div>

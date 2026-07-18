@@ -1,0 +1,41 @@
+@model Article
+@{
+    ViewData["Title"] = Model.Id == 0 ? "Thêm bài viết" : "Sửa bài viết";
+}
+
+<div class="admin-tab-header">
+    <h2 style="font-family:var(--font-serif);font-size:1.3rem">@ViewData["Title"]</h2>
+    <a class="admin-add-btn" asp-action="Index" style="background:transparent;color:#1A1A1A;border:1px solid #e5e7eb">Quay lại danh sách</a>
+</div>
+
+<div class="admin-section-card">
+    <form asp-action="@(Model.Id == 0 ? "Create" : "Edit")" asp-route-id="@Model.Id" method="post" enctype="multipart/form-data">
+        <div asp-validation-summary="ModelOnly" class="auth-error" style="display:block;margin-bottom:16px"></div>
+        <input type="hidden" asp-for="Id" />
+        <div class="checkout-grid">
+            <div class="checkout-input-group">
+                <label class="checkout-input-label">Tiêu đề</label>
+                <input asp-for="Title" class="checkout-input" />
+            </div>
+            <div class="checkout-input-group">
+                <label class="checkout-input-label">Chuyên mục</label>
+                <input asp-for="Category" class="checkout-input" placeholder="VD: Xu hướng, Sự kiện..." />
+            </div>
+        </div>
+        <div class="checkout-input-group" style="margin-bottom:24px">
+            <label class="checkout-input-label">Đường dẫn ảnh (URL)</label>
+            <input asp-for="Image" class="checkout-input" placeholder="https://..." />
+            <label class="checkout-input-label" style="margin-top:12px">... hoặc chọn ảnh có sẵn trong máy (sẽ ưu tiên nếu chọn)</label>
+            <input name="imageFile" type="file" accept="image/*" class="checkout-input" />
+            @if (!string.IsNullOrEmpty(Model.Image))
+            {
+                <img src="@Model.Image" alt="preview" style="width:80px;height:100px;object-fit:cover;margin-top:8px;border:1px solid #eee" />
+            }
+        </div>
+        <div class="checkout-input-group" style="margin-bottom:24px">
+            <label class="checkout-input-label">Nội dung</label>
+            <textarea asp-for="Content" class="contact-textarea" rows="8"></textarea>
+        </div>
+        <button class="admin-add-btn" type="submit">Lưu bài viết</button>
+    </form>
+</div>

@@ -1,0 +1,67 @@
+@model Article
+@{
+    ViewData["Title"] = Model.Title;
+    var related = ViewBag.RelatedArticles as List<Article> ?? new List<Article>();
+}
+
+<div class="journal-hero">
+    <img src="@Model.Image" alt="@Model.Title" referrerpolicy="no-referrer" onerror="this.src='https://picsum.photos/seed/journal/1400/900'" />
+    <div class="journal-hero-fade"></div>
+</div>
+
+<div class="journal-article-header">
+    @if (!string.IsNullOrEmpty(Model.Category))
+    {
+        <span class="journal-eyebrow">@Model.Category</span>
+    }
+    <h1 class="journal-article-title">@Model.Title</h1>
+    <div class="journal-article-meta">
+        <span>AHU Journal</span>
+        <span class="journal-meta-dot"></span>
+        <span>@FormatHelper.ReadingMinutes(Model.Content) phút đọc</span>
+    </div>
+</div>
+
+<div class="max-w-7xl" style="padding:0 16px 32px">
+    <a class="journal-back-link" asp-action="Index">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        Quay lại Tin tức
+    </a>
+</div>
+
+@{
+    // Chữ hoa lớn đầu bài chỉ đẹp khi có đủ chữ để dòng chữ bao quanh nó (khoảng
+    // 3 dòng trở lên). Bài quá ngắn (như trong ảnh báo lỗi) sẽ tắt hiệu ứng này
+    // để không bị vỡ layout.
+    var firstParagraph = (Model.Content ?? "").Split('\n', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? "";
+    var enableDropCap = firstParagraph.Length >= 240;
+}
+<div class="journal-prose @(enableDropCap ? "has-dropcap" : "")">@Model.Content</div>
+
+@if (related.Count > 0)
+{
+    <div class="journal-related-wrap">
+        <div class="journal-section-label">
+            <span>Đọc thêm</span>
+            <div class="journal-hr"></div>
+        </div>
+        <div class="journal-list">
+            @foreach (var a in related)
+            {
+                <a class="journal-list-row" href="@Url.Action("Details", new { id = a.Id })">
+                    <div class="journal-list-img-wrap">
+                        <img src="@a.Image" alt="@a.Title" referrerpolicy="no-referrer" onerror="this.src='https://picsum.photos/seed/journal/400/400'" loading="lazy" />
+                    </div>
+                    <div class="journal-list-content">
+                        @if (!string.IsNullOrEmpty(a.Category))
+                        {
+                            <span class="journal-eyebrow">@a.Category</span>
+                        }
+                        <h3 class="journal-list-title">@a.Title</h3>
+                        <p class="journal-list-excerpt">@FormatHelper.Excerpt(a.Content, 120)</p>
+                    </div>
+                </a>
+            }
+        </div>
+    </div>
+}

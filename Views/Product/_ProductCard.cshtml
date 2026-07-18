@@ -1,0 +1,39 @@
+@model Product
+@{
+    var catLabel = Model.Type;
+    bool onSale = Model.Discount > 0;
+    bool hasOriginalPrice = Model.OriginalPrice.HasValue && Model.OriginalPrice.Value > Model.Price;
+}
+<div class="product-card" onclick="location.href='@Url.Action("Details", "Product", new { id = Model.Id })'">
+    <div class="product-img-wrap">
+        @if (onSale)
+        {
+            <span class="product-sale-badge">-@(Model.Discount)% SALE</span>
+        }
+        <img src="@Model.Image" alt="@Model.Name" referrerpolicy="no-referrer" onerror="this.src='https://picsum.photos/seed/fashion/800/1000'" loading="lazy" />
+        <div class="product-actions-overlay">
+            <div class="product-actions-buttons">
+                <button class="product-action-btn" title="Thêm nhanh vào giỏ" type="button" onclick="quickAddToCart(@Model.Id, event)">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                </button>
+                <button class="product-action-btn" title="Xem nhanh" type="button" onclick="openQuickView(@Model.Id, event)">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+                <a class="product-action-btn" title="Chi tiết sản phẩm" href="@Url.Action("Details", "Product", new { id = Model.Id })" onclick="event.stopPropagation()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="product-info">
+        <p class="product-category-label">@catLabel</p>
+        <h3 class="product-name">@Model.Name</h3>
+        <div class="product-price-row">
+            @if (hasOriginalPrice)
+            {
+                <span class="product-price-original">@FormatHelper.FormatPrice(Model.OriginalPrice!.Value)</span>
+            }
+            <span class="product-price">@FormatHelper.FormatPrice(Model.Price)</span>
+        </div>
+    </div>
+</div>

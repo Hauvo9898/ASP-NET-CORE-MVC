@@ -1,0 +1,43 @@
+<div id="quick-view-modal">
+    <div class="modal-backdrop" onclick="closeQuickView()"></div>
+    <div class="modal-box">
+        <button class="modal-close" onclick="closeQuickView()" type="button">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+        <div class="modal-img"><img id="qv-img" src="" alt="" referrerpolicy="no-referrer" /></div>
+        <div class="modal-details">
+            <p class="modal-cat-label" id="qv-cat"></p>
+            <h2 class="modal-product-name" id="qv-name"></h2>
+            <div class="product-detail-price-row">
+                <span class="product-detail-price-original" id="qv-price-original" style="display:none"></span>
+                <p class="modal-price" id="qv-price" style="margin:0"></p>
+                <span class="product-detail-sale-badge" id="qv-sale-badge" style="display:none; margin-left:0"></span>
+            </div>
+            <div class="modal-divider"></div>
+            <p class="modal-desc" id="qv-desc"></p>
+            <div id="qv-sizes-wrap" style="display:none">
+                <p class="modal-section-label">Kích cỡ</p>
+                <div class="size-btns" id="qv-sizes"></div>
+            </div>
+            <div id="qv-colors-wrap" style="display:none">
+                <p class="modal-section-label">Màu sắc</p>
+                <div class="color-btns" id="qv-colors"></div>
+            </div>
+            <div class="qty-row">
+                <span class="qty-label">Số lượng</span>
+                <div class="qty-control">
+                    <button class="qty-btn" type="button" onclick="qvQtyChange(-1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+                    <span class="qty-value" id="qv-qty">1</span>
+                    <button class="qty-btn" type="button" onclick="qvQtyChange(1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+                </div>
+            </div>
+            <div class="modal-add-row">
+                <button class="modal-add-btn" type="button" onclick="qvAddToCart()">
+                    <span>Thêm vào giỏ</span>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                </button>
+                <a class="modal-detail-link" id="qv-detail-link" href="#">Chi tiết</a>
+            </div>
+        </div>
+    </div>
+</div>

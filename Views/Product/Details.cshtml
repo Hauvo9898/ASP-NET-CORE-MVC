@@ -1,0 +1,67 @@
+@model Product
+@{
+    ViewData["Title"] = Model.Name;
+    bool onSale = Model.Discount > 0;
+    bool hasOriginalPrice = Model.OriginalPrice.HasValue && Model.OriginalPrice.Value > Model.Price;
+}
+
+<div class="max-w-7xl" style="padding:0 16px">
+    <a class="back-link" asp-action="Index">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        Quay lại bộ sưu tập
+    </a>
+    <div class="product-detail-grid">
+        <div class="product-detail-img" style="position:relative">
+            @if (onSale)
+            {
+                <span class="product-sale-badge">-@(Model.Discount)% SALE</span>
+            }
+            <img src="@Model.Image" alt="@Model.Name" />
+        </div>
+        <div class="product-detail-info">
+            <div>
+                <p class="product-detail-cat">@Model.Type</p>
+                <h1 class="product-detail-name">@Model.Name</h1>
+                <div class="product-detail-price-row">
+                    @if (hasOriginalPrice)
+                    {
+                        <span class="product-detail-price-original">@FormatHelper.FormatPrice(Model.OriginalPrice!.Value)</span>
+                    }
+                    <p class="product-detail-price" style="margin:0">@FormatHelper.FormatPrice(Model.Price)</p>
+                    @if (onSale)
+                    {
+                        <span class="product-detail-sale-badge">-@(Model.Discount)%</span>
+                    }
+                </div>
+            </div>
+            <div class="product-detail-divider"></div>
+            <p class="product-detail-desc">@Model.Description</p>
+
+            <form asp-controller="Cart" asp-action="Add" method="post" style="display:flex;flex-direction:column;gap:24px;padding-top:32px">
+                <input type="hidden" name="productId" value="@Model.Id" />
+                <input type="hidden" name="quantity" id="pd-qty-input" value="1" />
+                <div style="display:flex;align-items:center;gap:32px">
+                    <span style="font-size:12px;text-transform:uppercase;letter-spacing:0.1em;font-weight:600">Số lượng</span>
+                    <div class="cart-qty-control">
+                        <button class="cart-qty-btn" type="button" onclick="pdQtyChange(-1)">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        </button>
+                        <span class="cart-qty-val" id="pd-qty">1</span>
+                        <button class="cart-qty-btn" type="button" onclick="pdQtyChange(1)">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        </button>
+                    </div>
+                </div>
+                <button class="luxury-button" type="submit" style="display:flex;align-items:center;justify-content:center;gap:12px">
+                    Thêm vào giỏ hàng
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                </button>
+            </form>
+
+            <div class="product-detail-features">
+                <div><span>Chất liệu</span><span>100% nguyên liệu cao cấp</span></div>
+                <div><span>Nguồn gốc</span><span>Thủ công tại Ý</span></div>
+            </div>
+        </div>
+    </div>
+</div>
