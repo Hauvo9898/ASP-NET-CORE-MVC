@@ -13,10 +13,12 @@ namespace AHUWeb.Controllers
     public class AccountController : Controller
     {
         private readonly ApplicationDbContext _db;
+        private readonly IWebHostEnvironment _env;
 
-        public AccountController(ApplicationDbContext db)
+        public AccountController(ApplicationDbContext db, IWebHostEnvironment env)
         {
             _db = db;
+            _env = env;
         }
 
         // GET /Account/Login — trang có 2 tab: "Dành cho Khách hàng" / "Cổng Quản trị"
@@ -104,6 +106,41 @@ namespace AHUWeb.Controllers
             var user = await _db.Users.FindAsync(userId);
             if (user == null) return NotFound();
             return View(user);
+        }
+
+        // POST /Account/UploadAvatar — Lab 06: upload anh dai dien qua Ajax FormData + IFormFile
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UploadAvatar(IFormFile avatarFile)
+        {
+            if (avatarFile == null || avatarFile.Length == 0)
+                return Json(new { success = false, message = "Vui lòng chọn ảnh." });
+
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var user = await _db.Users.FindAsync(userId);
+            if (user == null) return Json(new { success = false, message = "Không tìm thấy tài khoản." });
+
+            var uploadsDir = Path.Combine(_env.WebRootPath, "images", "avatars");
+            Directory.CreateDirectory(uploadsDir);
+            var fileName = $"{Guid.NewGuid()}{Path.GetExtension(avatarFile.FileName)}";
+            var filePath = Path.Combine(uploadsDir, fileName);
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await avatarFile.CopyToAsync(stream);
+            }
+
+            // Xoa anh cu (neu co) de khong tich rac file trong wwwroot
+            if (!string.IsNullOrEmpty(user.AvatarUrl))
+            {
+                var oldPath = Path.Combine(_env.WebRootPath, user.AvatarUrl.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
+                if (System.IO.File.Exists(oldPath)) System.IO.File.Delete(oldPath);
+            }
+
+            user.AvatarUrl = $"/images/avatars/{fileName}";
+            await _db.SaveChangesAsync();
+
+            return Json(new { success = true, avatarUrl = user.AvatarUrl, message = "Đã cập nhật ảnh đại diện." });
         }
 
         // POST /Account/Logout — thay cho handleLogout()

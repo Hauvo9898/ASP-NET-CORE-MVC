@@ -12,15 +12,17 @@ namespace AHUWeb.Areas.Admin.Controllers
     public class UsersController : AdminBaseController
     {
         private readonly ApplicationDbContext _db;
+        private readonly IWebHostEnvironment _env;
 
         // Form "Thêm hội viên" gốc không có ô mật khẩu (chỉ demo phía JS, không đăng nhập thật
         // được). Vì giờ có backend thật, user do admin tạo sẽ có mật khẩu mặc định này —
         // nên đổi ngay sau lần đăng nhập đầu.
         public const string DefaultNewUserPassword = "123456";
 
-        public UsersController(ApplicationDbContext db)
+        public UsersController(ApplicationDbContext db, IWebHostEnvironment env)
         {
             _db = db;
+            _env = env;
         }
 
         // GET /Admin/Users — thay cho renderAdminUsers()
@@ -98,12 +100,28 @@ namespace AHUWeb.Areas.Admin.Controllers
         }
 
         // POST /Admin/Users/Delete/5 — thay cho deleteUser()
+        // Lab 06: chặn xóa nếu thành viên đã có đơn hàng (tương đương ràng buộc "đã viết bài
+        // thì không được xóa" của giáo trình gốc — Order là quan hệ phụ thuộc thật đang có),
+        // và dọn file ảnh đại diện vật lý khi xóa thành công.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
             var user = await _db.Users.FindAsync(id);
             if (user == null) return NotFound();
+
+            var hasOrders = await _db.Orders.AnyAsync(o => o.UserId == id);
+            if (hasOrders)
+            {
+                TempData["ToastMessage"] = "Không thể xóa: người dùng này đã có đơn hàng.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            if (!string.IsNullOrEmpty(user.AvatarUrl))
+            {
+                var avatarPath = Path.Combine(_env.WebRootPath, user.AvatarUrl.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
+                if (System.IO.File.Exists(avatarPath)) System.IO.File.Delete(avatarPath);
+            }
 
             _db.Users.Remove(user);
             await _db.SaveChangesAsync();

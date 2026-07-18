@@ -17,6 +17,14 @@
             </div>
         </div>
         <div class="odm-body">
+            <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px">
+                <img id="avatar-preview" src="@(Model.AvatarUrl ?? "https://picsum.photos/seed/avatar/160/160")" alt="Ảnh đại diện"
+                     style="width:72px;height:72px;border-radius:50%;object-fit:cover;border:1px solid #e5e7eb" />
+                <div>
+                    <input type="file" id="avatar-file" accept="image/*" style="display:none" onchange="uploadAvatar()" />
+                    <button type="button" class="odm-print-btn" onclick="document.getElementById('avatar-file').click()">Đổi ảnh đại diện</button>
+                </div>
+            </div>
             <div>
                 <div class="odm-info-label">Chi tiết hội viên</div>
                 <div class="odm-info-row" style="margin-bottom:16px">
@@ -49,3 +57,27 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        function uploadAvatar() {
+            var input = document.getElementById('avatar-file');
+            if (!input.files || !input.files[0]) return;
+
+            var formData = new FormData();
+            formData.append('avatarFile', input.files[0]);
+            formData.append('__RequestVerificationToken', getAfToken());
+
+            fetch('@Url.Action("UploadAvatar", "Account")', { method: 'POST', body: formData })
+                .then(function (r) { return r.json(); })
+                .then(function (res) {
+                    if (res.success) {
+                        document.getElementById('avatar-preview').src = res.avatarUrl + '?t=' + Date.now();
+                        showToast(res.message);
+                    } else {
+                        showToast(res.message, 'error');
+                    }
+                });
+        }
+    </script>
+}

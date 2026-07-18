@@ -27,6 +27,10 @@ namespace AHUWeb.Models
         [StringLength(200)]
         public string? FullName { get; set; }
 
+        // Lab 06: anh dai dien, upload qua Ajax FormData (xem AccountController.UploadAvatar)
+        [StringLength(500)]
+        public string? AvatarUrl { get; set; }
+
         public ICollection<Order> Orders { get; set; } = new List<Order>();
     }
 }
