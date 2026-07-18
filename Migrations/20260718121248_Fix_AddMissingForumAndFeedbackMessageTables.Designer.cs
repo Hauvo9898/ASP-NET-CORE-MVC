@@ -4,6 +4,7 @@ using AHUWeb.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AHUWeb.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260718121248_Fix_AddMissingForumAndFeedbackMessageTables")]
+    partial class Fix_AddMissingForumAndFeedbackMessageTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -49,7 +52,7 @@ namespace AHUWeb.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Articles", (string)null);
+                    b.ToTable("Articles");
                 });
 
             modelBuilder.Entity("AHUWeb.Models.Feedback", b =>
@@ -105,7 +108,7 @@ namespace AHUWeb.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Feedbacks", (string)null);
+                    b.ToTable("Feedbacks");
                 });
 
             modelBuilder.Entity("AHUWeb.Models.FeedbackMessage", b =>
@@ -135,7 +138,7 @@ namespace AHUWeb.Migrations
 
                     b.HasIndex("FeedbackId");
 
-                    b.ToTable("FeedbackMessages", (string)null);
+                    b.ToTable("FeedbackMessages");
                 });
 
             modelBuilder.Entity("AHUWeb.Models.ForumComment", b =>
@@ -165,7 +168,7 @@ namespace AHUWeb.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("ForumComments", (string)null);
+                    b.ToTable("ForumComments");
                 });
 
             modelBuilder.Entity("AHUWeb.Models.ForumImage", b =>
@@ -188,7 +191,7 @@ namespace AHUWeb.Migrations
 
                     b.HasIndex("ForumPostId");
 
-                    b.ToTable("ForumImages", (string)null);
+                    b.ToTable("ForumImages");
                 });
 
             modelBuilder.Entity("AHUWeb.Models.ForumPost", b =>
@@ -221,7 +224,7 @@ namespace AHUWeb.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("ForumPosts", (string)null);
+                    b.ToTable("ForumPosts");
                 });
 
             modelBuilder.Entity("AHUWeb.Models.ForumReaction", b =>
@@ -253,7 +256,7 @@ namespace AHUWeb.Migrations
                     b.HasIndex("ForumPostId", "UserId")
                         .IsUnique();
 
-                    b.ToTable("ForumReactions", (string)null);
+                    b.ToTable("ForumReactions");
                 });
 
             modelBuilder.Entity("AHUWeb.Models.Order", b =>
@@ -297,7 +300,7 @@ namespace AHUWeb.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Orders", (string)null);
+                    b.ToTable("Orders");
                 });
 
             modelBuilder.Entity("AHUWeb.Models.OrderDetail", b =>
@@ -326,7 +329,7 @@ namespace AHUWeb.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("OrderDetails", (string)null);
+                    b.ToTable("OrderDetails");
                 });
 
             modelBuilder.Entity("AHUWeb.Models.Product", b =>
@@ -380,7 +383,7 @@ namespace AHUWeb.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Products", (string)null);
+                    b.ToTable("Products");
                 });
 
             modelBuilder.Entity("AHUWeb.Models.Staff", b =>
@@ -417,7 +420,7 @@ namespace AHUWeb.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Staffs", (string)null);
+                    b.ToTable("Staffs");
                 });
 
             modelBuilder.Entity("AHUWeb.Models.User", b =>
@@ -455,7 +458,7 @@ namespace AHUWeb.Migrations
                     b.HasIndex("Username")
                         .IsUnique();
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("AHUWeb.Models.Feedback", b =>
