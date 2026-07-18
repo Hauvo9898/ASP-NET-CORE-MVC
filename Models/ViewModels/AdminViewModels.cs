@@ -43,6 +43,9 @@ namespace AHUWeb.Models.ViewModels
         public string? Email { get; set; }
 
         public string Role { get; set; } = "customer";
+
+        // Lab 08/09: gan tai khoan vao 1 Nhom quyen (null = khong gioi han quyen chi tiet)
+        public int? GroupId { get; set; }
     }
 
     public class GroupFormViewModel

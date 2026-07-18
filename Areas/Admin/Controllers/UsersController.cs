@@ -36,8 +36,20 @@ namespace AHUWeb.Areas.Admin.Controllers
             return View(await query.OrderByDescending(u => u.Id).ToListAsync());
         }
 
+        // Lab 08/09: danh sach Nhom quyen cho dropdown trong form Them/Sua
+        private async Task LoadGroupsToViewBag()
+        {
+            ViewBag.Groups = await _db.Groups.OrderBy(g => g.Name)
+                .Select(g => new { g.Id, g.Name })
+                .ToListAsync();
+        }
+
         // GET /Admin/Users/Create — thay cho openUserModal() không id
-        public IActionResult Create() => View(new UserFormViewModel { Role = "customer" });
+        public async Task<IActionResult> Create()
+        {
+            await LoadGroupsToViewBag();
+            return View(new UserFormViewModel { Role = "customer" });
+        }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -46,7 +58,11 @@ namespace AHUWeb.Areas.Admin.Controllers
             if (await _db.Users.AnyAsync(u => u.Username == model.Username))
                 ModelState.AddModelError(nameof(model.Username), "Tên tài khoản đã tồn tại.");
 
-            if (!ModelState.IsValid) return View(model);
+            if (!ModelState.IsValid)
+            {
+                await LoadGroupsToViewBag();
+                return View(model);
+            }
 
             var user = new User
             {
@@ -54,6 +70,7 @@ namespace AHUWeb.Areas.Admin.Controllers
                 FullName = model.FullName,
                 Email = model.Email,
                 Role = model.Role,
+                GroupId = model.GroupId,
                 Password = BCrypt.Net.BCrypt.HashPassword(DefaultNewUserPassword)
             };
             _db.Users.Add(user);
@@ -75,8 +92,10 @@ namespace AHUWeb.Areas.Admin.Controllers
                 Username = user.Username,
                 FullName = user.FullName,
                 Email = user.Email,
-                Role = user.Role
+                Role = user.Role,
+                GroupId = user.GroupId
             };
+            await LoadGroupsToViewBag();
             return View(model);
         }
 
@@ -85,7 +104,11 @@ namespace AHUWeb.Areas.Admin.Controllers
         public async Task<IActionResult> Edit(int id, UserFormViewModel model)
         {
             if (id != model.Id) return NotFound();
-            if (!ModelState.IsValid) return View(model);
+            if (!ModelState.IsValid)
+            {
+                await LoadGroupsToViewBag();
+                return View(model);
+            }
 
             var user = await _db.Users.FindAsync(id);
             if (user == null) return NotFound();
@@ -93,6 +116,7 @@ namespace AHUWeb.Areas.Admin.Controllers
             user.FullName = model.FullName;
             user.Email = model.Email;
             user.Role = model.Role;
+            user.GroupId = model.GroupId;
             await _db.SaveChangesAsync();
 
             TempData["ToastMessage"] = "Đã cập nhật người dùng";

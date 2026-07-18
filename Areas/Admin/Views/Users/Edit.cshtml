@@ -46,6 +46,18 @@
                 </select>
             </div>
         </div>
+        <div class="checkout-grid">
+            <div class="checkout-input-group">
+                <label class="checkout-input-label">Nhóm quyền (chỉ áp dụng cho Quản trị viên)</label>
+                <select asp-for="GroupId" class="checkout-input">
+                    <option value="">— Không thuộc nhóm nào (không giới hạn) —</option>
+                    @foreach (var g in ViewBag.Groups)
+                    {
+                        <option value="@g.Id" selected="@(Model.GroupId == g.Id)">@g.Name</option>
+                    }
+                </select>
+            </div>
+        </div>
         <button class="admin-add-btn" type="submit">Lưu thông tin</button>
     </form>
 </div>
