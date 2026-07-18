@@ -103,6 +103,7 @@ namespace AHUWeb.Areas.Admin.Controllers
                 Stock = product.Stock,
                 IsActive = product.IsActive,
                 Featured = product.Featured,
+                IsComingSoon = product.IsComingSoon,
                 ImageUrl = product.Image,
                 SelectedSizes = string.IsNullOrEmpty(product.SizesJson)
                     ? new List<string>()
@@ -195,6 +196,7 @@ namespace AHUWeb.Areas.Admin.Controllers
             product.Stock = model.Stock;
             product.IsActive = model.IsActive;
             product.Featured = model.Featured;
+            product.IsComingSoon = model.IsComingSoon;
             product.SizesJson = JsonSerializer.Serialize(model.SelectedSizes);
             product.ColorsJson = JsonSerializer.Serialize(model.SelectedColors);
 

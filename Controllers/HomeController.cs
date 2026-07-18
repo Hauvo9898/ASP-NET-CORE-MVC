@@ -24,6 +24,14 @@ namespace AHUWeb.Controllers
                 .OrderByDescending(p => p.Id)
                 .Take(8)
                 .ToListAsync();
+
+            // Lab 15: khoi "Sap ra mat" - tai dung dung Product.IsComingSoon Admin da danh dau
+            ViewBag.ComingSoon = await _db.Products
+                .Where(p => p.IsActive && p.IsComingSoon)
+                .OrderByDescending(p => p.Id)
+                .Take(8)
+                .ToListAsync();
+
             return View(featured);
         }
 

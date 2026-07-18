@@ -40,6 +40,9 @@ namespace AHUWeb.Models
 
         public bool IsActive { get; set; } = true;
 
+        // Lab 15: hien thi o khoi "Sap ra mat" tren trang chu (tai dung _ProductCard.cshtml)
+        public bool IsComingSoon { get; set; } = false;
+
         // Stored as comma-separated or JSON text, e.g. "S,M,L,XL"
         public string? SizesJson { get; set; }
 

@@ -57,3 +57,22 @@
 
     @await Html.PartialAsync("~/Views/Product/_QuickViewModal.cshtml")
 }
+
+@{
+    var comingSoon = ViewBag.ComingSoon as List<Product> ?? new List<Product>();
+}
+@if (comingSoon.Count > 0)
+{
+    <section class="featured-products-section">
+        <div class="section-title-center">
+            <h2 class="section-title">Sắp ra mắt</h2>
+            <div class="gold-divider"></div>
+        </div>
+        <div class="max-w-7xl products-grid" style="margin:0 auto">
+            @foreach (var p in comingSoon)
+            {
+                @await Html.PartialAsync("~/Views/Product/_ProductCard.cshtml", p)
+            }
+        </div>
+    </section>
+}

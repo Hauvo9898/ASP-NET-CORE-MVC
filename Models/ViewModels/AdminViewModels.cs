@@ -83,6 +83,7 @@ namespace AHUWeb.Models.ViewModels
 
         public bool IsActive { get; set; } = true;
         public bool Featured { get; set; }
+        public bool IsComingSoon { get; set; }
 
         public string? ImageUrl { get; set; }
         public IFormFile? ImageFile { get; set; }
