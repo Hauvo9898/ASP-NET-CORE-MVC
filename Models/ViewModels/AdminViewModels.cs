@@ -79,6 +79,9 @@ namespace AHUWeb.Models.ViewModels
         [Required(ErrorMessage = "Vui lòng chọn loại sản phẩm")]
         public string Type { get; set; } = "quần áo";
 
+        // Gan vao cay Danh muc (Admin > Danh muc); null = chua gan
+        public int? CategoryId { get; set; }
+
         public string? Description { get; set; }
 
         [Range(0, int.MaxValue)]

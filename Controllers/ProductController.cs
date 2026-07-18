@@ -23,10 +23,14 @@ namespace AHUWeb.Controllers
         // như trước giờ — chỉ khi chọn 1 danh mục cụ thể, tìm kiếm, hoặc chọn sắp xếp thì
         // mới chuyển sang lưới phẳng có sắp xếp + phân trang (hợp lý hơn vì nhóm nhiều
         // danh mục cùng lúc mà phân trang sẽ rất rối).
-        public async Task<IActionResult> Index(string? type, string? q, string? sort, int page = 1)
+        public async Task<IActionResult> Index(string? type, string? q, string? sort, int? categoryId, int page = 1)
         {
             var normalizedType = string.IsNullOrWhiteSpace(type) ? "all" : type;
-            bool grouped = normalizedType == "all" && string.IsNullOrWhiteSpace(q) && string.IsNullOrWhiteSpace(sort);
+            bool grouped = normalizedType == "all" && string.IsNullOrWhiteSpace(q)
+                && string.IsNullOrWhiteSpace(sort) && categoryId == null;
+
+            // Hàng nút lọc theo Danh mục (chỉ danh mục gốc); rỗng thì view không hiện hàng này
+            var categoryFilters = await LoadRootCategoryFilters();
 
             if (grouped)
             {
@@ -37,12 +41,20 @@ namespace AHUWeb.Controllers
                     Grouped = true,
                     CurrentType = normalizedType,
                     CurrentQuery = q ?? "",
-                    ActionName = nameof(Index)
+                    ActionName = nameof(Index),
+                    CategoryFilters = categoryFilters
                 });
             }
 
-            var query = BuildBaseQuery(type: normalizedType, q: q, featuredOnly: false);
+            // Lọc theo danh mục = danh mục được chọn + toàn bộ danh mục con cháu của nó
+            List<int>? categoryIds = categoryId.HasValue
+                ? await GetCategoryWithDescendantIds(categoryId.Value)
+                : null;
+
+            var query = BuildBaseQuery(type: normalizedType, q: q, featuredOnly: false, categoryIds: categoryIds);
             var vm = await BuildListViewModel(query, normalizedType, q, sort, page, nameof(Index));
+            vm.CurrentCategoryId = categoryId;
+            vm.CategoryFilters = categoryFilters;
             return View(vm);
         }
 
@@ -52,7 +64,7 @@ namespace AHUWeb.Controllers
         public async Task<IActionResult> Featured(string? type, string? q, string? sort, int page = 1)
         {
             var normalizedType = string.IsNullOrWhiteSpace(type) ? "all" : type;
-            var query = BuildBaseQuery(type: normalizedType, q: q, featuredOnly: true);
+            var query = BuildBaseQuery(type: normalizedType, q: q, featuredOnly: true, categoryIds: null);
             var vm = await BuildListViewModel(query, normalizedType, q, sort, page, nameof(Featured));
             vm.EmptyMessage = "Hiện chưa có sản phẩm nổi bật nào được đánh dấu.";
             return View(vm);
@@ -114,7 +126,7 @@ namespace AHUWeb.Controllers
             return Json(results);
         }
 
-        private IQueryable<Product> BuildBaseQuery(string? type, string? q, bool featuredOnly)
+        private IQueryable<Product> BuildBaseQuery(string? type, string? q, bool featuredOnly, List<int>? categoryIds)
         {
             var query = _db.Products.Where(p => p.IsActive).AsQueryable();
 
@@ -124,10 +136,43 @@ namespace AHUWeb.Controllers
             if (!string.IsNullOrWhiteSpace(type) && type != "all")
                 query = query.Where(p => p.Type == type);
 
+            if (categoryIds != null)
+                query = query.Where(p => p.CategoryId.HasValue && categoryIds.Contains(p.CategoryId.Value));
+
             if (!string.IsNullOrWhiteSpace(q))
                 query = query.Where(p => p.Name.Contains(q));
 
             return query;
+        }
+
+        // Danh mục gốc cho hàng nút lọc trên trang Bộ sưu tập
+        private async Task<List<(int Id, string Name)>> LoadRootCategoryFilters()
+        {
+            var roots = await _db.Categories
+                .Where(c => c.ParentId == null)
+                .OrderBy(c => c.Name)
+                .Select(c => new { c.Id, c.Name })
+                .ToListAsync();
+            return roots.Select(c => (c.Id, c.Name)).ToList();
+        }
+
+        // Id danh mục được chọn + toàn bộ con cháu (duyệt BFS trên bộ nhớ — bảng danh mục nhỏ)
+        private async Task<List<int>> GetCategoryWithDescendantIds(int categoryId)
+        {
+            var all = await _db.Categories.Select(c => new { c.Id, c.ParentId }).ToListAsync();
+            var result = new List<int> { categoryId };
+            var queue = new Queue<int>();
+            queue.Enqueue(categoryId);
+            while (queue.Count > 0)
+            {
+                var current = queue.Dequeue();
+                foreach (var child in all.Where(x => x.ParentId == current))
+                {
+                    result.Add(child.Id);
+                    queue.Enqueue(child.Id);
+                }
+            }
+            return result;
         }
 
         private static IQueryable<Product> ApplySort(IQueryable<Product> query, string sort) => sort switch

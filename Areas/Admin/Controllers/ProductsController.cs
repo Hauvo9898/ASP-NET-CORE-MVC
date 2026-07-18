@@ -25,11 +25,30 @@ namespace AHUWeb.Areas.Admin.Controllers
         public static readonly string[] SizeOptions = { "S", "M", "L", "XL", "XXL" };
         public static readonly string[] ShoeSizeOptions = { "36", "37", "38", "39", "40", "41", "42", "43", "44", "45" };
 
-        private void LoadFormOptions()
+        private async Task LoadFormOptions()
         {
             ViewBag.ColorPalette = ColorPalette;
             ViewBag.SizeOptions = SizeOptions;
             ViewBag.ShoeSizeOptions = ShoeSizeOptions;
+            ViewBag.CategoryOptions = await BuildCategoryOptions();
+        }
+
+        // Cay danh muc lam phang cho dropdown, con thut cap bang "— " de thay ro cha-con.
+        // Toan bo danh muc thuong chi vai chuc dong nen nap het vao bo nho roi duyet de quy.
+        private async Task<List<(int Id, string Label)>> BuildCategoryOptions()
+        {
+            var all = await _db.Categories.OrderBy(c => c.Name).ToListAsync();
+            var result = new List<(int, string)>();
+            void AddLevel(int? parentId, int depth)
+            {
+                foreach (var c in all.Where(x => x.ParentId == parentId))
+                {
+                    result.Add((c.Id, string.Concat(Enumerable.Repeat("— ", depth)) + c.Name));
+                    AddLevel(c.Id, depth + 1);
+                }
+            }
+            AddLevel(null, 0);
+            return result;
         }
 
         public ProductsController(ApplicationDbContext db, IWebHostEnvironment env)
@@ -41,7 +60,7 @@ namespace AHUWeb.Areas.Admin.Controllers
         // GET /Admin/Products — thay cho renderAdminProducts() (tab "products")
         public async Task<IActionResult> Index(string? q)
         {
-            var query = _db.Products.AsQueryable();
+            var query = _db.Products.Include(p => p.Category).AsQueryable();
             if (!string.IsNullOrWhiteSpace(q))
                 query = query.Where(p => p.Name.Contains(q));
 
@@ -51,9 +70,9 @@ namespace AHUWeb.Areas.Admin.Controllers
         }
 
         // GET /Admin/Products/Create — thay cho openProductModal() không có id
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            LoadFormOptions();
+            await LoadFormOptions();
             return View(new ProductFormViewModel());
         }
 
@@ -75,7 +94,7 @@ namespace AHUWeb.Areas.Admin.Controllers
 
             if (!ModelState.IsValid)
             {
-                LoadFormOptions();
+                await LoadFormOptions();
                 return View(model);
             }
 
@@ -105,6 +124,7 @@ namespace AHUWeb.Areas.Admin.Controllers
                 OriginalPrice = product.OriginalPrice,
                 Discount = product.Discount,
                 Type = product.Type,
+                CategoryId = product.CategoryId,
                 Description = product.Description,
                 Stock = product.Stock,
                 IsActive = product.IsActive,
@@ -119,7 +139,7 @@ namespace AHUWeb.Areas.Admin.Controllers
                     : JsonSerializer.Deserialize<List<string>>(product.ColorsJson) ?? new()
             };
 
-            LoadFormOptions();
+            await LoadFormOptions();
             return View(model);
         }
 
@@ -131,7 +151,7 @@ namespace AHUWeb.Areas.Admin.Controllers
 
             if (!ModelState.IsValid)
             {
-                LoadFormOptions();
+                await LoadFormOptions();
                 return View(model);
             }
 
@@ -196,6 +216,7 @@ namespace AHUWeb.Areas.Admin.Controllers
             product.OriginalPrice = model.OriginalPrice;
             product.Discount = model.Discount;
             product.Type = model.Type;
+            product.CategoryId = model.CategoryId;
             product.Description = model.Description;
             product.Stock = model.Stock;
             product.IsActive = model.IsActive;

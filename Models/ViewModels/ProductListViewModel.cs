@@ -17,6 +17,11 @@ namespace AHUWeb.Models.ViewModels
         public string? CurrentQuery { get; set; }
         public string CurrentType { get; set; } = "all";
 
+        // Lọc theo cây Danh mục (Admin > Danh mục): id đang chọn + danh sách danh mục gốc
+        // cho hàng nút lọc. Rỗng = chưa tạo danh mục nào -> không hiện hàng lọc này.
+        public int? CurrentCategoryId { get; set; }
+        public List<(int Id, string Name)> CategoryFilters { get; set; } = new();
+
         // Điều hướng phân trang/sắp xếp cần biết đang ở action nào ("Index" hay "Featured")
         // để sinh đúng link, vì 2 trang dùng chung 1 partial nhưng khác action.
         public string ActionName { get; set; } = "Index";

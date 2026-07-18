@@ -18,6 +18,20 @@
         </div>
     </div>
 
+    @* Hàng lọc theo cây Danh mục (Admin > Danh mục) — chỉ hiện khi đã tạo danh mục.
+       Lọc theo danh mục cha sẽ gồm cả sản phẩm thuộc các danh mục con. *@
+    @if (Model.CategoryFilters.Count > 0)
+    {
+        <div class="category-filters" style="margin-bottom:48px;justify-content:flex-end;flex-wrap:wrap">
+            <span style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#9ca3af;align-self:center">Danh mục:</span>
+            <a class="cat-filter-btn @(Model.CurrentCategoryId == null ? "active" : "")" asp-action="Index">Tất cả</a>
+            @foreach (var c in Model.CategoryFilters)
+            {
+                <a class="cat-filter-btn @(Model.CurrentCategoryId == c.Id ? "active" : "")" asp-action="Index" asp-route-categoryId="@c.Id">@c.Name</a>
+            }
+        </div>
+    }
+
     @if (Model.Grouped)
     {
     @* Chế độ mặc định — giữ nguyên y hệt hành vi trước giờ: nhóm theo danh mục, không phân trang *@

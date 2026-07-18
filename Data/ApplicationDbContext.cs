@@ -115,6 +115,14 @@ namespace AHUWeb.Data
                 .HasForeignKey(c => c.ParentId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            // Product gan vao Danh muc (tuy chon): xoa danh muc thi san pham chi mat
+            // lien ket (CategoryId = null), khong bao gio xoa lay san pham.
+            modelBuilder.Entity<Product>()
+                .HasOne(p => p.Category)
+                .WithMany()
+                .HasForeignKey(p => p.CategoryId)
+                .OnDelete(DeleteBehavior.SetNull);
+
             modelBuilder.Entity<GroupPermission>()
                 .HasOne(gp => gp.Group)
                 .WithMany(g => g.GroupPermissions)

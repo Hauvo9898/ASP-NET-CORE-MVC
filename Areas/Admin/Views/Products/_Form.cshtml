@@ -3,6 +3,7 @@
     var palette = ((string Name, string Hex)[])ViewBag.ColorPalette;
     var sizeOptions = (string[])ViewBag.SizeOptions;
     var shoeSizeOptions = (string[])ViewBag.ShoeSizeOptions;
+    var categoryOptions = (List<(int Id, string Label)>)ViewBag.CategoryOptions;
 }
 
 <div asp-validation-summary="All" class="auth-error" style="display:block;margin-bottom:16px"></div>
@@ -18,6 +19,19 @@
             <option value="quần áo">Quần áo</option>
             <option value="phụ kiện">Phụ kiện</option>
             <option value="giày dép">Giày dép</option>
+        </select>
+    </div>
+</div>
+
+<div class="checkout-grid">
+    <div class="checkout-input-group">
+        <label class="checkout-input-label">Danh mục (quản lý ở Admin &rsaquo; Danh mục)</label>
+        <select asp-for="CategoryId" class="checkout-input">
+            <option value="">— Chưa gắn danh mục —</option>
+            @foreach (var c in categoryOptions)
+            {
+                <option value="@c.Id" selected="@(Model.CategoryId == c.Id)">@c.Label</option>
+            }
         </select>
     </div>
 </div>

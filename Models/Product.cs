@@ -18,6 +18,13 @@ namespace AHUWeb.Models
         [Required, StringLength(50)]
         public string Type { get; set; } = string.Empty;
 
+        // Gắn vào cây Danh mục (Lab 10). Nullable để sản phẩm cũ chưa gán danh mục
+        // vẫn hiển thị bình thường ở mọi luồng hiện có — Type vẫn là trục phân loại chính.
+        public int? CategoryId { get; set; }
+
+        [ForeignKey(nameof(CategoryId))]
+        public Category? Category { get; set; }
+
         [StringLength(500)]
         public string? Image { get; set; }
 

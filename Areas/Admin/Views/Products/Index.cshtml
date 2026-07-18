@@ -45,7 +45,7 @@
                                         </form>
                                         <p style="font-size:14px;font-weight:600;color:#1A1A1A">@p.Name</p>
                                     </div>
-                                    <p style="font-size:10px;color:#9ca3af;text-transform:uppercase;letter-spacing:0.1em">@p.Type</p>
+                                    <p style="font-size:10px;color:#9ca3af;text-transform:uppercase;letter-spacing:0.1em">@p.Type@(p.Category != null ? $" · {p.Category.Name}" : "")</p>
                                 </div>
                             </div>
                         </td>
